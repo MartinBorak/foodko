@@ -111,7 +111,7 @@ class FoodFormViewModel(private val session: UserSession, private val foodId: St
     var existing by mutableStateOf<Food?>(null)
         private set
 
-    /** How many of *my* meals reference this food (the other user's are invisible). */
+    /** How many of *my* meals reference this food (other users' are invisible). */
     var myMealCount by mutableIntStateOf(0)
         private set
 

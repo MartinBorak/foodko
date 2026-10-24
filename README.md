@@ -1,6 +1,7 @@
 # Foodko
 
-Private food intake and weight tracker for two people. Android only, Kotlin + Jetpack Compose,
+Food intake and weight tracker for a household: each user has their own meals and weight,
+everyone shares one food database. Android only, Kotlin + Jetpack Compose,
 data in Firebase (Google sign-in + Firestore). See `spec.md` for what it does and why.
 
 ## Run your own instance

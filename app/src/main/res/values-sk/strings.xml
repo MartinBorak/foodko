@@ -32,12 +32,12 @@
     <string name="fat_short">T</string>
 
     <!-- Prihlásenie -->
-    <string name="sign_in_subtitle">Súkromný denník jedla a váhy.</string>
+    <string name="sign_in_subtitle">Denník jedla a váhy.</string>
     <string name="sign_in_google">Prihlásiť sa cez Google</string>
     <string name="sign_in_no_account">V telefóne nie je žiadny účet Google.</string>
     <string name="sign_in_failed">Prihlásenie zlyhalo.</string>
     <string name="add_google_account">Pridať účet Google</string>
-    <string name="access_denied_title">Táto aplikácia je súkromná</string>
+    <string name="access_denied_title">Bez prístupu</string>
     <string name="access_denied_body">%1$s nie je v zozname povolených účtov.</string>
     <string name="sign_out">Odhlásiť sa</string>
 

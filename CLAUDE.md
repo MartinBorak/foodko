@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Foodko: a private Android app for two people (Martin and his wife) to log meals and weight and see
-intake/weight statistics. Kotlin + Jetpack Compose + Material 3, Firebase Auth (Google) + Cloud
-Firestore. Not on any store; installed over USB on a Pixel 9 Pro XL and a Pixel 8a.
+Foodko: an Android app for a household (any number of allowlisted users) to log meals and weight
+and see intake/weight statistics. Each user's meals and weights are private; the food database is shared. Kotlin + Jetpack Compose + Material 3, Firebase Auth (Google) + Cloud
+Firestore. Not on any store; distributed to the users' phones via Firebase App Distribution.
 
 **`spec.md` is the source of truth** for behaviour, data model, screens and priorities. Read it
 before changing behaviour; update it when a decision changes. Section 12 records resolved questions.
@@ -97,17 +97,17 @@ Single module `:app`, package `app.foodko`. Manual dependency wiring (no Hilt/Ko
   This is what the unit tests cover.
 - `ui/<feature>` — one package per screen with its ViewModel; `ui/theme`, `ui/navigation`.
 
-Firestore layout (see spec §6): `foods/{id}` is shared by both users; everything private is under
+Firestore layout (see spec §6): `foods/{id}` is shared by all users; everything private is under
 `users/{uid}` (`meals`, `weights`, settings fields on the user doc). Rules enforce that a user only
 reads/writes their own subtree, which has two consequences that shape the code:
 
 1. **Foods are never deleted**: `archived` hides, `mergedInto` redirects. Every food lookup must
-   resolve `mergedInto` chains. Merging rewrites only the *current* user's meals; the other user's
+   resolve `mergedInto` chains. Merging rewrites only the *current* user's meals; every other user's
    app rewrites its own meals when it next sees a redirect ("self-healing", spec Flow 7).
-2. A phone cannot see the other user's data, so nothing may assume a global count of references.
+2. A phone cannot see other users' data, so nothing may assume a global count of references.
 
 Nutrition is never stored on meals; it is computed from the referenced food at display time.
 
 UI language (English/Slovak) is switched with the platform per-app locale API (`LocaleManager`,
 hence `minSdk 33`) and mirrored in the user's Firestore settings. All user-facing strings go in
-`res/values/strings.xml` **and** `res/values-sk/strings.xml`; Martin reviews the Slovak.
+`res/values/strings.xml` **and** `res/values-sk/strings.xml`; a native speaker reviews the Slovak.

@@ -1,21 +1,21 @@
 # Foodko — Spec
 
-Private food intake management app.
+Food intake and weight tracker for a household: private per-user history, shared food database.
 
 > **Design decisions** (1–6 reviewed and approved; 7–8 are new, please review):
 >
 > 1. **Kotlin + Jetpack Compose + Material 3.** Today's standard Android SDK UI toolkit, no cross-platform layer.
-> 2. **Firebase (Firestore + Firebase Auth with Google Sign-In) as the backend.** Data linked to the Google account, survives phone changes, no server to run, free tier covers two users forever. Needs a Firebase project created in your Google account (I'll walk you through it; \~10 minutes).
-> 3. **Sign-in restricted to an allowlist of your two Google accounts.** Otherwise anyone with the APK could create an account in your project.
+> 2. **Firebase (Firestore + Firebase Auth with Google Sign-In) as the backend.** Data linked to the Google account, survives phone changes, no server to run, free tier covers a household forever. Needs a Firebase project created in your Google account (I'll walk you through it; \~10 minutes).
+> 3. **Sign-in restricted to an allowlist of Google accounts.** Otherwise anyone with the APK could create an account in your project.
 > 4. **Meals reference the food by id, nutrition is computed on the fly.** Editing a food (e.g. fixing a typo in kcal) retroactively corrects history.
 > 5. **A daily kcal target per person**, optional, editable in settings; drawn as a reference line on the charts.
 > 6. **Metric only** (kg, g). Decimal input accepts both `,` and `.`.
-> 7. **Merging duplicate foods works through a redirect, not a direct rewrite of both histories.** The privacy rules mean your phone cannot read or write your wife's meals, and there is no server-side code on the free plan. So a merge (a) rewrites *your* meals immediately, (b) marks the duplicate food as `mergedInto → survivor`, and (c) her app rewrites *her* meals the next time it syncs. In between, every read already resolves the redirect, so both of you see correct data at all times. See Flow 7.
+> 7. **Merging duplicate foods works through a redirect, not a direct rewrite of both histories.** The privacy rules mean a phone cannot read or write other users' meals, and there is no server-side code on the free plan. So a merge (a) rewrites *your* meals immediately, (b) marks the duplicate food as `mergedInto → survivor`, and (c) every other user's app rewrites their meals the next time it syncs. In between, every read already resolves the redirect, so everyone sees correct data at all times. See Flow 7.
 > 8. **Foods are archived, not deleted.** For the same reason, a phone can't know whether the *other* user still has meals pointing at a food, so hard delete is unsafe. "Delete" hides the food from lists and the picker; existing meals keep working.
 
 ## 1. Summary
 
-**One-liner:** A private Android app for two people to log weight and meals and watch their calorie and nutrition intake and weight trend over time.
+**One-liner:** An Android app for a household to log weight and meals and watch calorie and nutrition intake and weight trends over time, with private per-user history and a shared food database.
 
 **Problem it solves:** Eating healthier and losing weight needs honest, low-friction tracking: what we ate, how much, and what it did to our weight. The app makes logging a meal take a few seconds and keeps all history in the cloud so a phone change loses nothing.
 
@@ -26,17 +26,16 @@ Private food intake management app.
 
 | User type | What they want to get done                        | How often / where                        |
 | --------- | ------------------------------------------------- | ---------------------------------------- |
-| Martin    | Log meals and weight, see intake and weight trend | Several times a day, on a Pixel 9 Pro XL |
-| Wife      | Same                                              | Several times a day, on a Pixel 8a       |
+| Household member | Log meals and weight, see intake and weight trend | Several times a day, on their own Android phone |
 
 
-Two users total for the prototype. Both are equal; there is no admin.
+Any number of allowlisted users (a household). All are equal; there is no admin role.
 
 **Roles and permissions:**
 
 - A user sees and edits **only their own** meals, weights and settings.
 - The **food database is shared**: both users can add, edit and see all foods. No ownership checks on foods for the prototype (we trust each other).
-- Only the two allowlisted Google accounts can sign in.
+- Only allowlisted Google accounts can sign in.
 
 ## 3. Key flows
 
@@ -44,7 +43,7 @@ Two users total for the prototype. Both are equal; there is no admin.
 
 1. Open app → single "Sign in with Google" button.
 2. Pick Google account → Firebase Auth creates/finds the user.
-3. If the account is not on the allowlist → "This app is private" message, stay signed out.
+3. If the account is not on the allowlist → "No access" message, stay signed out.
 4. Land on **Today**. All data syncs down from Firestore automatically. Stays signed in until explicitly signed out.
 
 **Edge cases:** No network on first launch → show error, retry. On a replacement phone, step 4 restores everything with no extra steps.
@@ -95,7 +94,7 @@ Two users total for the prototype. Both are equal; there is no admin.
 
 ### Flow 7: Merge duplicate foods
 
-Scenario: both of us created "Skyr vanilkový" separately, with slightly different values.
+Scenario: two users created "Skyr vanilkový" separately, with slightly different values.
 
 1. **Foods** tab → long-press a food to enter selection mode → tick the duplicates (2 or more) → **Merge** action in the top bar.
 2. **Merge screen**: the selected foods are listed with their values side by side. One is pre-selected as the **survivor** (the one most used in my own meals, ties broken by oldest). Tapping another row makes it the survivor.
@@ -118,7 +117,7 @@ Scenario: both of us created "Skyr vanilkový" separately, with slightly differe
 
 | Feature                                                                                   | Priority     | Notes                                                                   |
 | ----------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------- |
-| Google sign-in, allowlist of two accounts                                                 | MVP          |                                                                         |
+| Google sign-in, allowlist of accounts                                                     | MVP          |                                                                         |
 | All data stored in Firestore; full restore on a new phone                                 | MVP          |                                                                         |
 | Offline logging with background sync                                                      | MVP          | Comes for free with Firestore's offline cache; just must not be broken. |
 | Food database: add / edit / list / search                                                 | MVP          | Shared between both users.                                              |
@@ -147,7 +146,7 @@ Scenario: both of us created "Skyr vanilkový" separately, with slightly differe
 ## 5. Out of scope
 
 - Any sharing between users: friends, feeds, comparing progress, seeing each other's data.
-- More than two users, invitations, public sign-up.
+- Invitations, public sign-up; users are added to the allowlist by whoever runs the Firebase project.
 - Google Play (or any store) release, in-app updates, crash reporting services.
 - iOS, web, tablet layouts.
 - Photos of meals, AI food recognition.
@@ -212,7 +211,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 - **Platform:** Android only. `minSdk 33` (Android 13, for the built-in per-app language API used by the Slovak/English switch), `targetSdk` = latest stable. Tested on Pixel 9 Pro XL and Pixel 8a.
 - **Stack:** Kotlin, Jetpack Compose, Material 3, Navigation Compose, ViewModel + Kotlin Flows, Firebase Auth + Cloud Firestore (with offline persistence on), charts drawn with Compose `Canvas` (three simple charts, no charting library). Gradle with version catalog. No DI framework (manual wiring is enough at this size). Unit tests for the nutrition/statistics calculations; no UI tests for the prototype.
 - **Hosting / deployment:** Firebase project (Spark free plan) in your Google account. App installed over USB via Android Studio or `./gradlew installDebug`. Both phones get the same build from the same machine.
-- **Authentication:** Google Sign-In through Firebase Auth. Allowlist of two e-mails enforced in Firestore security rules (and mirrored in the app for a friendly message).
+- **Authentication:** Google Sign-In through Firebase Auth. Allowlist of e-mails enforced in Firestore security rules (the app only shows a friendly message when refused).
 - **Constraints:** No cross-platform frameworks. No paid services. The repo must contain no secrets: `google-services.json` is gitignored and documented in the README.
 
 ## 9. Integrations
@@ -231,14 +230,14 @@ No other integrations.
 - **Expected scale:** 2 users, a few thousand meal entries per year each, a few hundred foods. Everything fits in memory; no pagination needed.
 - **Languages / localization:** UI in Slovak or English, switched in Settings (per-app locale, independent of the phone language). All strings live in resource files for both languages; I draft the Slovak, you review. Numbers and dates formatted per the chosen locale; decimal input accepts `,` and `.`.
 - **Offline support:** Logging and browsing must work offline; sync when back online. Stats may use cached data.
-- **Privacy / sensitive data:** Health data of two named people. Only the two accounts can read it; Firestore rules are the enforcement point and get a small rules test. No analytics, no crash reporting, no third-party SDKs beyond Firebase.
+- **Privacy / sensitive data:** Health data of real people. Only the allowlisted accounts can read it, each only their own; Firestore rules are the enforcement point and get a small rules test. No analytics, no crash reporting, no third-party SDKs beyond Firebase.
 - **Accessibility:** System font scaling must not break layouts; otherwise default Compose behaviour.
 - **Performance expectations:** Cold start to Today under 2 s on the Pixel 8a; logging a known food under 10 s including the tap on the FAB.
 
 ## 11. Definition of done for the MVP
 
-- [x] Both of us can sign in with our Google accounts on our own phones; a third Google account is refused.
-- [x] I can add a food with label + kcal and optional macros, and my wife sees it in her picker without doing anything.
+- [x] Allowlisted users can sign in with their Google accounts on their own phones; an account not on the allowlist is refused.
+- [x] I can add a food with label + kcal and optional macros, and other users see it in their picker without doing anything.
 - [x] I can log a known food in under 10 seconds from the Today screen.
 - [ ] The Today screen shows correct totals for the day (checked by hand against a calculator for one day).
 - [ ] I can change the grams, time or food of a past meal, and delete one, and the totals update.
@@ -247,7 +246,7 @@ No other integrations.
 - [ ] Logging a meal in airplane mode works and appears in Firestore once back online.
 - [ ] Uninstalling the app and reinstalling it restores everything after sign-in.
 - [ ] Neither user can see the other's meals or weights (verified through the Firestore rules test).
-- [ ] Merging two duplicate foods rewrites my meals immediately; my wife's meals show the survivor right away and are rewritten on her phone after its next sync.
+- [ ] Merging duplicate foods rewrites my meals immediately; other users' meals show the survivor right away and are rewritten on their phones after the next sync.
 - [x] Switching the language in Settings changes the whole UI to Slovak / English without a restart.
 
 ## 12. Resolved questions
@@ -256,7 +255,7 @@ Kept for the record; nothing is open right now.
 
 1. **Snapshot nutrition into meals?** No. Meals reference the food; history recalculates when a food is edited.
 2. **Kcal target in the MVP?** Yes.
-3. **Wife's account:** she has a Google account on the Pixel 8a to link to.
+3. **Other users' accounts:** each user links their own Google account.
 4. **Decimal entry:** all numeric fields accept integers and decimals; whole numbers are displayed without a decimal part (see Business rules).
 5. **Water / drinks:** ordinary foods, no special handling.
 6. **Repo:** `git init` in `/Users/martin/work/foodko`; the Android project lives at the repo root.

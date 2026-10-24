@@ -36,7 +36,7 @@ class FoodRepository(private val db: FirebaseFirestore) {
     /**
      * Merge (spec Flow 7). In one atomic batch: the survivor is updated with [survivor]'s values,
      * every id in [mergedIds] becomes a redirect to it, and the current user's meals and recent
-     * list are rewritten. The other user's data is healed by [RedirectHealer] on their phone.
+     * list are rewritten. Other users' data is healed by [RedirectHealer] on their phones.
      */
     suspend fun merge(
         uid: String,

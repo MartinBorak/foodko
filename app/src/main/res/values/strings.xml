@@ -38,12 +38,12 @@
     <string name="fat_short">F</string>
 
     <!-- Sign in -->
-    <string name="sign_in_subtitle">Private food and weight tracker.</string>
+    <string name="sign_in_subtitle">Food and weight tracker.</string>
     <string name="sign_in_google">Sign in with Google</string>
     <string name="sign_in_no_account">No Google account found on this phone.</string>
     <string name="sign_in_failed">Sign-in failed.</string>
     <string name="add_google_account">Add a Google account</string>
-    <string name="access_denied_title">This app is private</string>
+    <string name="access_denied_title">No access</string>
     <string name="access_denied_body">%1$s is not on the list of allowed accounts.</string>
     <string name="sign_out">Sign out</string>
 
