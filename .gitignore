@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+build/
+.kotlin/
+
+# Local config
+local.properties
+*.local
+
+# Secrets / per-machine Firebase config
+app/google-services.json
+*.keystore
+!debug.keystore
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Firebase CLI: per-machine project selection (`firebase use <project-id>`) and emulator logs
+.firebaserc
+.firebase/
+*-debug.log

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Foodko</string>
+
+    <!-- Mock build only (local Firebase emulators); never shown in a real build -->
+    <string name="mock_banner" translatable="false">MOCK MODE — local emulators</string>
+    <string name="mock_sign_in_as" translatable="false">Sign in as %1$s</string>
+
+    <!-- Navigation / general -->
+    <string name="tab_today">Today</string>
+    <string name="tab_foods">Foods</string>
+    <string name="tab_weight">Weight</string>
+    <string name="tab_stats">Stats</string>
+    <string name="settings">Settings</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="add">Add</string>
+    <string name="change">Change</string>
+    <string name="no_data_yet">Nothing to show yet</string>
+    <string name="invalid_number">Enter a valid number</string>
+
+    <!-- Units and nutrients -->
+    <string name="grams_unit">g</string>
+    <string name="kcal_unit">kcal</string>
+    <string name="kg_unit">kg</string>
+    <string name="kcal_per_100g_short">kcal / 100 g</string>
+    <string name="protein">Protein</string>
+    <string name="carbs">Carbs</string>
+    <string name="fat">Fat</string>
+    <string name="fibre">Fibre</string>
+    <string name="protein_short">P</string>
+    <string name="carbs_short">C</string>
+    <string name="fat_short">F</string>
+
+    <!-- Sign in -->
+    <string name="sign_in_subtitle">Private food and weight tracker.</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="sign_in_no_account">No Google account found on this phone.</string>
+    <string name="sign_in_failed">Sign-in failed.</string>
+    <string name="add_google_account">Add a Google account</string>
+    <string name="access_denied_title">This app is private</string>
+    <string name="access_denied_body">%1$s is not on the list of allowed accounts.</string>
+    <string name="sign_out">Sign out</string>
+
+    <!-- Today -->
+    <string name="pick_date">Pick a date</string>
+    <string name="previous_day">Previous day</string>
+    <string name="next_day">Next day</string>
+    <string name="add_meal">Meal</string>
+    <string name="no_meals_today">No meals logged on this day.</string>
+    <string name="eaten_kcal">Eaten</string>
+    <string name="target_kcal">Target</string>
+    <string name="remaining_kcal">Remaining</string>
+    <string name="over_kcal">Over</string>
+    <string name="incomplete_macros">Some foods have no macro values; macro totals are incomplete.</string>
+    <string name="unknown_food">Unknown food</string>
+    <string name="log_again">Log again</string>
+    <string name="log_again_body">Log %1$s g again, now?</string>
+    <string name="logged_again">Logged.</string>
+
+    <!-- Meal form / picker -->
+    <string name="pick_food">Pick a food</string>
+    <string name="new_meal">New meal</string>
+    <string name="edit_meal">Edit meal</string>
+    <string name="delete_meal_title">Delete this meal?</string>
+    <string name="weight_grams">Weight</string>
+    <string name="nutrition_preview">This meal</string>
+    <string name="search_foods">Search foods</string>
+    <string name="recent">Recent</string>
+    <string name="all_foods">All foods</string>
+    <string name="create_food">Create new food</string>
+    <string name="create_food_named">Create “%1$s”</string>
+
+    <!-- Foods -->
+    <string name="add_food">Add food</string>
+    <string name="merge">Merge</string>
+    <string name="more">More</string>
+    <string name="merge_duplicates">Merge duplicates…</string>
+    <string name="select_foods_to_merge">Select foods to merge</string>
+    <string name="show_archived">Show archived</string>
+    <string name="hide_archived">Show active</string>
+    <string name="showing_archived">Archived foods</string>
+    <string name="foods_empty">No foods yet. Add the first one with +.</string>
+    <string name="no_foods_found">No foods match.</string>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+
+    <!-- Food form -->
+    <string name="new_food">New food</string>
+    <string name="edit_food">Edit food</string>
+    <string name="food_label">Name</string>
+    <string name="kcal_per_100g">kcal per 100 g</string>
+    <string name="per_100g_optional">Per 100 g (optional)</string>
+    <string name="duplicate_label_warning">“%1$s” already exists. Save anyway or pick it instead.</string>
+    <string name="macros_exceed_warning">Macros add up to more than 100 g per 100 g.</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Restore</string>
+    <string name="archive_confirm_title">Archive this food?</string>
+    <string name="archive_confirm_body">It disappears from lists and the picker. Logged meals keep it.</string>
+    <plurals name="archive_confirm_used">
+        <item quantity="one">You logged it %1$d time. It disappears from lists and the picker; your meals keep it.</item>
+        <item quantity="other">You logged it %1$d times. It disappears from lists and the picker; your meals keep it.</item>
+    </plurals>
+
+    <!-- Merge -->
+    <string name="merge_title">Merge foods</string>
+    <string name="merge_survivor_hint">Pick the food to keep. The others become part of it and every meal is rewritten to it.</string>
+    <string name="merge_result_values">Values after the merge</string>
+    <plurals name="used_in_my_meals">
+        <item quantity="one">%1$d meal of mine</item>
+        <item quantity="other">%1$d meals of mine</item>
+    </plurals>
+    <plurals name="merge_button">
+        <item quantity="one">Merge %1$d food</item>
+        <item quantity="other">Merge %1$d foods</item>
+    </plurals>
+
+    <!-- Weight -->
+    <string name="weight">Weight</string>
+    <string name="weight_now">Weight now</string>
+    <string name="latest_weight">Latest</string>
+    <string name="change_since_start">Since start</string>
+    <string name="change_in_range">In range</string>
+    <string name="moving_average_hint">Thick line: 7-day moving average.</string>
+    <string name="no_weights_yet">No weigh-ins yet.</string>
+    <string name="edit_weight">Edit weigh-in</string>
+    <string name="weight_sanity_title">Is that right?</string>
+    <string name="weight_sanity_body">%1$s kg looks unusual. Save it anyway?</string>
+
+    <!-- Ranges -->
+    <string name="range_7">7 d</string>
+    <string name="range_30">30 d</string>
+    <string name="range_90">90 d</string>
+    <string name="range_all">All</string>
+
+    <!-- Stats -->
+    <string name="daily_kcal">Daily calories</string>
+    <string name="tap_bar_hint">Tap a bar for the exact value.</string>
+    <string name="average_per_logged_day">Average per logged day</string>
+    <string name="vs_target">vs. target</string>
+    <string name="macro_split">Energy from macros</string>
+    <string name="weight_trend">Weight trend</string>
+    <plurals name="logged_days">
+        <item quantity="one">%1$d logged day</item>
+        <item quantity="other">%1$d logged days</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="display_name">Display name</string>
+    <string name="daily_kcal_target">Daily calorie target</string>
+    <string name="daily_kcal_target_hint">Leave empty for no target.</string>
+    <string name="language">Language</string>
+    <string name="language_system">System</string>
+    <string name="language_en">English</string>
+    <string name="language_sk">Slovenčina</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+</resources>

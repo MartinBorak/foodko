@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigácia / všeobecné -->
+    <string name="tab_today">Dnes</string>
+    <string name="tab_foods">Potraviny</string>
+    <string name="tab_weight">Váha</string>
+    <string name="tab_stats">Štatistiky</string>
+    <string name="settings">Nastavenia</string>
+    <string name="today">Dnes</string>
+    <string name="yesterday">Včera</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Zrušiť</string>
+    <string name="back">Späť</string>
+    <string name="save">Uložiť</string>
+    <string name="delete">Vymazať</string>
+    <string name="add">Pridať</string>
+    <string name="change">Zmeniť</string>
+    <string name="no_data_yet">Zatiaľ nie je čo zobraziť</string>
+    <string name="invalid_number">Zadaj platné číslo</string>
+
+    <!-- Jednotky a živiny -->
+    <string name="grams_unit">g</string>
+    <string name="kcal_unit">kcal</string>
+    <string name="kg_unit">kg</string>
+    <string name="kcal_per_100g_short">kcal / 100 g</string>
+    <string name="protein">Bielkoviny</string>
+    <string name="carbs">Sacharidy</string>
+    <string name="fat">Tuky</string>
+    <string name="fibre">Vláknina</string>
+    <string name="protein_short">B</string>
+    <string name="carbs_short">S</string>
+    <string name="fat_short">T</string>
+
+    <!-- Prihlásenie -->
+    <string name="sign_in_subtitle">Súkromný denník jedla a váhy.</string>
+    <string name="sign_in_google">Prihlásiť sa cez Google</string>
+    <string name="sign_in_no_account">V telefóne nie je žiadny účet Google.</string>
+    <string name="sign_in_failed">Prihlásenie zlyhalo.</string>
+    <string name="add_google_account">Pridať účet Google</string>
+    <string name="access_denied_title">Táto aplikácia je súkromná</string>
+    <string name="access_denied_body">%1$s nie je v zozname povolených účtov.</string>
+    <string name="sign_out">Odhlásiť sa</string>
+
+    <!-- Dnes -->
+    <string name="pick_date">Vybrať dátum</string>
+    <string name="previous_day">Predchádzajúci deň</string>
+    <string name="next_day">Nasledujúci deň</string>
+    <string name="add_meal">Jedlo</string>
+    <string name="no_meals_today">V tento deň nie je zapísané žiadne jedlo.</string>
+    <string name="eaten_kcal">Zjedené</string>
+    <string name="target_kcal">Cieľ</string>
+    <string name="remaining_kcal">Zostáva</string>
+    <string name="over_kcal">Navyše</string>
+    <string name="incomplete_macros">Niektoré potraviny nemajú vyplnené živiny; súčty živín sú neúplné.</string>
+    <string name="unknown_food">Neznáma potravina</string>
+    <string name="log_again">Zapísať znova</string>
+    <string name="log_again_body">Zapísať %1$s g znova, teraz?</string>
+    <string name="logged_again">Zapísané.</string>
+
+    <!-- Formulár jedla / výber -->
+    <string name="pick_food">Vyber potravinu</string>
+    <string name="new_meal">Nové jedlo</string>
+    <string name="edit_meal">Upraviť jedlo</string>
+    <string name="delete_meal_title">Vymazať toto jedlo?</string>
+    <string name="weight_grams">Hmotnosť</string>
+    <string name="nutrition_preview">Toto jedlo</string>
+    <string name="search_foods">Hľadať potraviny</string>
+    <string name="recent">Nedávne</string>
+    <string name="all_foods">Všetky potraviny</string>
+    <string name="create_food">Vytvoriť novú potravinu</string>
+    <string name="create_food_named">Vytvoriť „%1$s“</string>
+
+    <!-- Potraviny -->
+    <string name="add_food">Pridať potravinu</string>
+    <string name="merge">Zlúčiť</string>
+    <string name="more">Viac</string>
+    <string name="merge_duplicates">Zlúčiť duplicity…</string>
+    <string name="select_foods_to_merge">Vyber potraviny na zlúčenie</string>
+    <string name="show_archived">Zobraziť archivované</string>
+    <string name="hide_archived">Zobraziť aktívne</string>
+    <string name="showing_archived">Archivované potraviny</string>
+    <string name="foods_empty">Zatiaľ žiadne potraviny. Prvú pridáš cez +.</string>
+    <string name="no_foods_found">Nič nezodpovedá hľadaniu.</string>
+    <plurals name="selected_count">
+        <item quantity="one">Vybraná %1$d</item>
+        <item quantity="few">Vybrané %1$d</item>
+        <item quantity="many">Vybraných %1$d</item>
+        <item quantity="other">Vybraných %1$d</item>
+    </plurals>
+
+    <!-- Formulár potraviny -->
+    <string name="new_food">Nová potravina</string>
+    <string name="edit_food">Upraviť potravinu</string>
+    <string name="food_label">Názov</string>
+    <string name="kcal_per_100g">kcal na 100 g</string>
+    <string name="per_100g_optional">Na 100 g (nepovinné)</string>
+    <string name="duplicate_label_warning">„%1$s“ už existuje. Môžeš uložiť aj tak, alebo vybrať existujúcu.</string>
+    <string name="macros_exceed_warning">Živiny dávajú dokopy viac než 100 g na 100 g.</string>
+    <string name="archive">Archivovať</string>
+    <string name="unarchive">Obnoviť</string>
+    <string name="archive_confirm_title">Archivovať túto potravinu?</string>
+    <string name="archive_confirm_body">Zmizne zo zoznamov a z výberu. Zapísané jedlá ju zostanú používať.</string>
+    <plurals name="archive_confirm_used">
+        <item quantity="one">Zapísal/a si ju %1$d-krát. Zmizne zo zoznamov a z výberu; tvoje jedlá ju zostanú používať.</item>
+        <item quantity="few">Zapísal/a si ju %1$d-krát. Zmizne zo zoznamov a z výberu; tvoje jedlá ju zostanú používať.</item>
+        <item quantity="many">Zapísal/a si ju %1$d-krát. Zmizne zo zoznamov a z výberu; tvoje jedlá ju zostanú používať.</item>
+        <item quantity="other">Zapísal/a si ju %1$d-krát. Zmizne zo zoznamov a z výberu; tvoje jedlá ju zostanú používať.</item>
+    </plurals>
+
+    <!-- Zlúčenie -->
+    <string name="merge_title">Zlúčiť potraviny</string>
+    <string name="merge_survivor_hint">Vyber potravinu, ktorá zostane. Ostatné sa do nej zlúčia a všetky jedlá sa prepíšu na ňu.</string>
+    <string name="merge_result_values">Hodnoty po zlúčení</string>
+    <plurals name="used_in_my_meals">
+        <item quantity="one">%1$d moje jedlo</item>
+        <item quantity="few">%1$d moje jedlá</item>
+        <item quantity="many">%1$d mojich jedál</item>
+        <item quantity="other">%1$d mojich jedál</item>
+    </plurals>
+    <plurals name="merge_button">
+        <item quantity="one">Zlúčiť %1$d potravinu</item>
+        <item quantity="few">Zlúčiť %1$d potraviny</item>
+        <item quantity="many">Zlúčiť %1$d potravín</item>
+        <item quantity="other">Zlúčiť %1$d potravín</item>
+    </plurals>
+
+    <!-- Váha -->
+    <string name="weight">Váha</string>
+    <string name="weight_now">Aktuálna váha</string>
+    <string name="latest_weight">Posledná</string>
+    <string name="change_since_start">Od začiatku</string>
+    <string name="change_in_range">V období</string>
+    <string name="moving_average_hint">Hrubá čiara: 7-dňový kĺzavý priemer.</string>
+    <string name="no_weights_yet">Zatiaľ žiadne váženie.</string>
+    <string name="edit_weight">Upraviť váženie</string>
+    <string name="weight_sanity_title">Je to správne?</string>
+    <string name="weight_sanity_body">%1$s kg vyzerá nezvyčajne. Uložiť aj tak?</string>
+
+    <!-- Obdobia -->
+    <string name="range_7">7 d</string>
+    <string name="range_30">30 d</string>
+    <string name="range_90">90 d</string>
+    <string name="range_all">Všetko</string>
+
+    <!-- Štatistiky -->
+    <string name="daily_kcal">Denné kalórie</string>
+    <string name="tap_bar_hint">Ťukni na stĺpec pre presnú hodnotu.</string>
+    <string name="average_per_logged_day">Priemer na zapísaný deň</string>
+    <string name="vs_target">oproti cieľu</string>
+    <string name="macro_split">Energia zo živín</string>
+    <string name="weight_trend">Vývoj váhy</string>
+    <plurals name="logged_days">
+        <item quantity="one">%1$d zapísaný deň</item>
+        <item quantity="few">%1$d zapísané dni</item>
+        <item quantity="many">%1$d zapísaných dní</item>
+        <item quantity="other">%1$d zapísaných dní</item>
+    </plurals>
+
+    <!-- Nastavenia -->
+    <string name="display_name">Zobrazované meno</string>
+    <string name="daily_kcal_target">Denný cieľ kalórií</string>
+    <string name="daily_kcal_target_hint">Nechaj prázdne, ak cieľ nechceš.</string>
+    <string name="language">Jazyk</string>
+    <string name="language_system">Systém</string>
+    <string name="language_en">English</string>
+    <string name="language_sk">Slovenčina</string>
+    <string name="signed_in_as">Prihlásený účet: %1$s</string>
+</resources>
