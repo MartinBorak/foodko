@@ -7,21 +7,21 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-/** `users/{uid}/meals`. One live listener for everything; the data set is small (spec §10). */
-class MealRepository(private val db: FirebaseFirestore, uid: String) {
+/** [MealRepository] on Cloud Firestore. One live listener for everything; the data set is small (spec §10). */
+class FirestoreMealRepository(private val db: FirebaseFirestore, uid: String) : MealRepository {
 
     private val collection = db.collection("users").document(uid).collection("meals")
 
-    val all: Flow<List<MealEntry>> =
+    override val all: Flow<List<MealEntry>> =
         collection.orderBy("timestamp", Query.Direction.ASCENDING).snapshots<MealEntry>()
 
-    suspend fun save(meal: MealEntry): String {
+    override suspend fun save(meal: MealEntry): String {
         val doc = if (meal.id.isEmpty()) collection.document() else collection.document(meal.id)
         doc.set(meal.copy(id = doc.id, updatedAt = null)).await()
         return doc.id
     }
 
-    suspend fun delete(id: String) {
+    override suspend fun delete(id: String) {
         collection.document(id).delete().await()
     }
 
@@ -39,8 +39,7 @@ class MealRepository(private val db: FirebaseFirestore, uid: String) {
         }
     }
 
-    /** Rewrites `foodId` for the given meals according to [mapping] (old id → final id). */
-    suspend fun repoint(meals: List<MealEntry>, mapping: Map<String, String>) {
+    override suspend fun repoint(meals: List<MealEntry>, mapping: Map<String, String>) {
         val updates = meals.mapNotNull { m -> mapping[m.foodId]?.let { m.id to it } }
         updates.chunked(BATCH_LIMIT).forEach { chunk ->
             val batch = db.batch()

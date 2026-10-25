@@ -6,21 +6,21 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-/** `users/{uid}/weights`. */
-class WeightRepository(db: FirebaseFirestore, uid: String) {
+/** [WeightRepository] on Cloud Firestore. */
+class FirestoreWeightRepository(db: FirebaseFirestore, uid: String) : WeightRepository {
 
     private val collection = db.collection("users").document(uid).collection("weights")
 
-    val all: Flow<List<WeightEntry>> =
+    override val all: Flow<List<WeightEntry>> =
         collection.orderBy("timestamp", Query.Direction.ASCENDING).snapshots<WeightEntry>()
 
-    suspend fun save(entry: WeightEntry): String {
+    override suspend fun save(entry: WeightEntry): String {
         val doc = if (entry.id.isEmpty()) collection.document() else collection.document(entry.id)
         doc.set(entry.copy(id = doc.id)).await()
         return doc.id
     }
 
-    suspend fun delete(id: String) {
+    override suspend fun delete(id: String) {
         collection.document(id).delete().await()
     }
 }

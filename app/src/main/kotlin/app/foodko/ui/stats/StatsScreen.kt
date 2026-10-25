@@ -27,24 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import app.foodko.R
-import app.foodko.UserSession
-import app.foodko.domain.DailyTotals
-import app.foodko.domain.MacroSplit
 import app.foodko.domain.Numbers
-import app.foodko.domain.Totals
-import app.foodko.domain.WeightPoint
-import app.foodko.domain.averagePerLoggedDay
 import app.foodko.domain.change
-import app.foodko.domain.dailySeries
-import app.foodko.domain.joinMeals
-import app.foodko.domain.macroSplit
 import app.foodko.domain.macroTargetsFor
 import app.foodko.domain.toLocalDate
-import app.foodko.domain.weightSeries
 import app.foodko.ui.components.BarChart
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.LineChart
@@ -53,62 +41,10 @@ import app.foodko.ui.components.MacroRow
 import app.foodko.ui.components.MacroSplitBar
 import app.foodko.ui.components.RangeSelector
 import app.foodko.ui.components.Stat
-import app.foodko.ui.components.StatsRange
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.formatShortDate
 import app.foodko.ui.sessionViewModel
 import app.foodko.ui.theme.warningColor
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
-
-data class StatsUiState(
-    val loading: Boolean = true,
-    val range: StatsRange = StatsRange.WEEK,
-    val daily: List<DailyTotals> = emptyList(),
-    val average: Totals? = null,
-    val loggedDays: Int = 0,
-    val split: MacroSplit? = null,
-    val target: Double? = null,
-    val weights: List<WeightPoint> = emptyList(),
-)
-
-class StatsViewModel(session: UserSession) : ViewModel() {
-
-    private val range = MutableStateFlow(StatsRange.WEEK)
-
-    val uiState: StateFlow<StatsUiState> = combine(
-        range, session.allMeals, session.foodIndex, session.allWeights, session.userSettings,
-    ) { r, meals, index, weights, settings ->
-        if (meals == null || index == null || weights == null) return@combine StatsUiState(range = r)
-        val today = LocalDate.now()
-        val from = r.days?.let { today.minusDays(it - 1) }
-            ?: listOfNotNull(
-                meals.firstOrNull()?.timestamp?.toInstant()?.toLocalDate(),
-                weights.firstOrNull()?.timestamp?.toInstant()?.toLocalDate(),
-            ).minOrNull() ?: today
-        val joined = joinMeals(meals, index)
-        val daily = dailySeries(joined, from, today)
-        val logged = daily.filter { it.mealCount > 0 }
-        val sum = logged.fold(Totals()) { acc, d -> acc + d.totals }
-        val weightPoints = weightSeries(weights.filter { !it.timestamp.toInstant().toLocalDate().isBefore(from) })
-        StatsUiState(
-            loading = false,
-            range = r,
-            daily = daily,
-            average = daily.averagePerLoggedDay(),
-            loggedDays = logged.size,
-            split = sum.macroSplit(),
-            target = settings?.dailyKcalTarget,
-            weights = weightPoints,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
-
-    fun setRange(r: StatsRange) { range.value = r }
-}
 
 /** Bar chart of one macro's grams per day with its derived target line. */
 @Composable

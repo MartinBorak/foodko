@@ -3,6 +3,7 @@ package app.foodko.data
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -15,6 +16,16 @@ import java.util.concurrent.Executor
 // Timestamp.toInstant() is a member of the SDK class; only the reverse direction is needed here.
 fun Instant.toTimestamp(): Timestamp = Timestamp(epochSecond, nano)
 
+/**
+ * The rules refused a read: this account is not on the allowlist (spec Flow 1). Raised instead
+ * of the SDK's own exception so that nothing outside this file depends on Firestore types.
+ */
+class AccessDeniedException(cause: Throwable? = null) : RuntimeException("Access denied by Firestore rules", cause)
+
+@PublishedApi
+internal fun Throwable.asRepositoryError(): Throwable =
+    if (this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.PERMISSION_DENIED) AccessDeniedException(this) else this
+
 /** Snapshot callbacks (and the reflection-based document mapping) run off the main thread. */
 val snapshotExecutor: Executor = Dispatchers.Default.asExecutor()
 
@@ -22,7 +33,7 @@ val snapshotExecutor: Executor = Dispatchers.Default.asExecutor()
 inline fun <reified T : Any> Query.snapshots(): Flow<List<T>> = callbackFlow {
     val registration = addSnapshotListener(snapshotExecutor) { snapshot, error ->
         if (error != null) {
-            close(error)
+            close(error.asRepositoryError())
             return@addSnapshotListener
         }
         if (snapshot != null) trySend(snapshot.toObjects(T::class.java))
@@ -34,7 +45,7 @@ inline fun <reified T : Any> Query.snapshots(): Flow<List<T>> = callbackFlow {
 fun DocumentReference.snapshots(): Flow<DocumentSnapshot?> = callbackFlow {
     val registration = addSnapshotListener(snapshotExecutor) { snapshot, error ->
         if (error != null) {
-            close(error)
+            close(error.asRepositoryError())
             return@addSnapshotListener
         }
         trySend(snapshot?.takeIf { it.exists() })

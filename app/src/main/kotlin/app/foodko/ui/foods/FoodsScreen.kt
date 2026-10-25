@@ -44,40 +44,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.foodko.R
-import app.foodko.UserSession
 import app.foodko.data.model.Food
 import app.foodko.domain.Numbers
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.LoadingBox
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.sessionViewModel
-
-class FoodsViewModel(session: UserSession) : ViewModel() {
-    val foodIndex = session.foodIndex
-    var query by mutableStateOf("")
-    var showArchived by mutableStateOf(false)
-    var selected by mutableStateOf(emptySet<String>())
-        private set
-
-    /** Entered via long-press or the "Merge duplicates…" menu item; left with the X. */
-    var selecting by mutableStateOf(false)
-        private set
-
-    fun startSelecting() { selecting = true }
-
-    fun toggle(id: String) {
-        selecting = true
-        selected = if (id in selected) selected - id else selected + id
-    }
-
-    fun clearSelection() {
-        selected = emptySet()
-        selecting = false
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable

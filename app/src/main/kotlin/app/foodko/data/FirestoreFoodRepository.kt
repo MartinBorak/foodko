@@ -7,16 +7,14 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
-/** The shared `foods` collection. */
-class FoodRepository(private val db: FirebaseFirestore) {
+/** [FoodRepository] on Cloud Firestore. Also performs the merge batch, which spans collections. */
+class FirestoreFoodRepository(private val db: FirebaseFirestore) : FoodRepository {
 
     private val collection = db.collection("foods")
 
-    /** Every food document, including archived and redirected ones; FoodIndex sorts them out. */
-    val foods: Flow<List<Food>> = collection.orderBy("labelLower", Query.Direction.ASCENDING).snapshots<Food>()
+    override val foods: Flow<List<Food>> = collection.orderBy("labelLower", Query.Direction.ASCENDING).snapshots<Food>()
 
-    /** Creates or updates a food; returns its id. Search key and timestamps are maintained here. */
-    suspend fun save(food: Food, uid: String): String {
+    override suspend fun save(food: Food, uid: String): String {
         val doc = if (food.id.isEmpty()) collection.document() else collection.document(food.id)
         val prepared = food.copy(
             id = doc.id,
@@ -29,7 +27,7 @@ class FoodRepository(private val db: FirebaseFirestore) {
         return doc.id
     }
 
-    suspend fun setArchived(id: String, archived: Boolean) {
+    override suspend fun setArchived(id: String, archived: Boolean) {
         collection.document(id).update(mapOf("archived" to archived, "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp())).await()
     }
 
@@ -42,8 +40,8 @@ class FoodRepository(private val db: FirebaseFirestore) {
         uid: String,
         survivor: Food,
         mergedIds: List<String>,
-        meals: MealRepository,
-        settings: SettingsRepository,
+        meals: FirestoreMealRepository,
+        settings: FirestoreSettingsRepository,
         lastUsedFoodIds: List<String>,
     ) {
         require(survivor.id.isNotEmpty()) { "survivor must be an existing food" }
