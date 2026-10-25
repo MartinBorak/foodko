@@ -201,6 +201,9 @@ private fun MainNavigation() {
                 FoodFormScreen(
                     foodId = args?.getString("foodId")?.ifEmpty { null },
                     prefillLabel = args?.getString("label").orEmpty(),
+                    pickedFoodId = entry.savedStateHandle.getStateFlow<String?>(Routes.PICKED_FOOD_ID, null),
+                    onConsumePickedFood = { entry.savedStateHandle[Routes.PICKED_FOOD_ID] = null },
+                    onCreateFood = { label -> navController.navigate(Routes.food(pick = true, label = label)) },
                     onSaved = { id ->
                         if (pick) navController.previousBackStackEntry?.savedStateHandle?.set(Routes.PICKED_FOOD_ID, id)
                         navController.popBackStack()

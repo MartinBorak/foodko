@@ -72,6 +72,28 @@ Any number of allowlisted users (a household). All are equal; there is no admin 
 - Label already exists (case-insensitive) → warn, allow saving anyway (e.g. two brands of yoghurt), but show the existing one.
 - Negative numbers → rejected. Macros summing to more than 100 g → warning, not blocked.
 
+### Flow 3a: Work out a cooked dish's values from its ingredients
+
+A one-shot calculator inside the food form; the result is an ordinary food, nothing else is stored
+(decision 8).
+
+1. In the **Food form**, tap **Calculate from ingredients…**.
+2. **Ingredients** view: tap **Add ingredient** → the same food picker as for meals (recent, search,
+   "Create new food"); enter the raw weight in grams of each ingredient; enter the **weight of the
+   finished dish** (differs from the sum: water added or evaporated).
+3. Live result: sum of the ingredients' nutrition scaled to 100 g of the finished dish, shown as
+   kcal and the four macros, plus the raw total (grams and kcal) for a sanity check.
+4. Tap **Use these values** → back in the form with kcal and macros filled in; edit or save as usual.
+
+**Edge cases:**
+
+- Any ingredient lacks a macro → that macro of the result is empty ("–"), not a silently low number;
+  it can be typed in by hand.
+- Back (arrow or system) steps picker → ingredients → form; the ingredient list survives until the
+  form is left.
+- Creating a new food from the ingredient picker opens a second food form on top; on save the new
+  food is added as an ingredient.
+
 ### Flow 4: Log weight
 
 1. **Weight** tab → **+ Weight** button (or the number field is right on the screen).
@@ -136,7 +158,8 @@ Scenario: two users created "Skyr vanilkový" separately, with slightly differen
 | Quick re-log: long-press a meal on Today → "Log again" (same food, same grams, timestamp now) | MVP      | Done.                                                                   |
 | Undo a merge                                                                              | Later        | Needs a merge log.                                                      |
 | Macro targets (protein/carbs/fat grams per day) in addition to kcal target                | Later        |                                                                         |
-| Composite foods / recipes (a food made of other foods)                                    | Later        |                                                                         |
+| Food values from ingredients: raw weights + finished weight → per 100 g                   | MVP          | Done. One-shot calculator in the food form, result is a plain food (Flow 3a, decision 8). |
+| Recipes (a food that remembers its ingredients and recomputes)                            | Rejected     | Decision 8: not wanted; the calculator above covers the use case.       |
 | Import foods from an open database (Open Food Facts) or barcode scan                      | Later        | Big feature; the manual form is enough to start.                        |
 | Reminders / notifications                                                                 | Nice-to-have |                                                                         |
 | Export data to CSV                                                                        | Nice-to-have |                                                                         |
@@ -197,7 +220,8 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | **Food picker**                  | Search field (auto-focused), "Recent" section, then filtered full list. "Create new food" row.                                                                                                           |
 | **Meal form**                    | Selected food (tap to change), grams field, date/time field, live nutrition preview, Save, Delete (when editing).                                                                                        |
 | **Foods** (tab)                  | Searchable list of all foods with kcal/100g. Tap to edit. Long-press to multi-select → **Merge**. Filter toggle to show archived foods. **+ Food**.                                                         |
-| **Food form**                    | Label, kcal/100g, carbs, fat, protein, fibre, Save, Archive / Un-archive.                                                                                                                                |
+| **Food form**                    | Label, kcal/100g, carbs, fat, protein, fibre, "Calculate from ingredients…", Save, Archive / Un-archive.                                                                                                 |
+| **Ingredients** (in Food form)   | Ingredient rows (food, grams, remove), Add ingredient (→ Food picker), weight of the finished dish, live per-100 g result, Use these values.                                                             |
 | **Merge screen**                 | Selected foods side by side with a survivor radio button; Food form prefilled from the survivor; Save.                                                                                                   |
 | **Weight** (tab)                 | Latest weight and change since first entry. Line chart (range selector). Inline "add weight" row. History list, tap to edit.                                                                             |
 | **Stats** (tab)                  | Range selector (7 / 30 / 90 / all). Daily kcal bar chart with target line. Averages card. Macro split chart. Weight chart with moving average.                                                           |
@@ -260,3 +284,6 @@ Kept for the record; nothing is open right now.
 5. **Water / drinks:** ordinary foods, no special handling.
 6. **Repo:** `git init` in `/Users/martin/work/foodko`; the Android project lives at the repo root.
 7. **Duplicate foods:** merge feature added as MVP (Flow 7).
+8. **Cooked dishes / recipes:** no recipes. The food form has a calculator that turns ingredients
+   plus the finished weight into per-100 g values (Flow 3a); the result is a plain food and the
+   ingredient list is not stored. Re-cooking a dish means a new food or editing the old one by hand.

@@ -109,6 +109,18 @@
         <item quantity="other">You logged it %1$d times. It disappears from lists and the picker; your meals keep it.</item>
     </plurals>
 
+    <!-- Food form: calculate values from ingredients -->
+    <string name="calculate_from_ingredients">Calculate from ingredients…</string>
+    <string name="from_ingredients">From ingredients</string>
+    <string name="ingredients_hint">Add the ingredients with their raw weights, then weigh the finished dish. The values per 100 g go into the form; the ingredient list itself is not kept.</string>
+    <string name="no_ingredients_yet">No ingredients yet.</string>
+    <string name="add_ingredient">Add ingredient</string>
+    <string name="remove_ingredient">Remove</string>
+    <string name="cooked_weight">Weight of the finished dish</string>
+    <string name="ingredients_total">Ingredients: %1$s g, %2$s kcal in total</string>
+    <string name="per_100g_result">Per 100 g of the finished dish</string>
+    <string name="use_values">Use these values</string>
+
     <!-- Merge -->
     <string name="merge_title">Merge foods</string>
     <string name="merge_survivor_hint">Pick the food to keep. The others become part of it and every meal is rewritten to it.</string>

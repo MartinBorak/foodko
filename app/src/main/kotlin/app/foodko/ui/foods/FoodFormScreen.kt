@@ -1,5 +1,6 @@
 package app.foodko.ui.foods
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,11 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,9 +33,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -47,11 +53,18 @@ import app.foodko.R
 import app.foodko.UserSession
 import app.foodko.data.model.Food
 import app.foodko.domain.FoodIndex
+import app.foodko.domain.Ingredient
+import app.foodko.domain.Per100g
+import app.foodko.domain.composePer100g
 import app.foodko.domain.Numbers
 import app.foodko.domain.normalizeForSearch
 import app.foodko.ui.components.LoadingBox
+import app.foodko.ui.components.MacroRow
+import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.NumberField
+import app.foodko.ui.meal.FoodPicker
 import app.foodko.ui.sessionViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -100,10 +113,27 @@ class FoodFields {
     )
 }
 
+/** What the food form screen shows: the form itself, or the ingredient calculator on top of it. */
+enum class FormMode { FORM, INGREDIENTS, PICKING_INGREDIENT }
+
+/** One row of the ingredient calculator; grams as typed. */
+class IngredientRow(val foodId: String) {
+    var grams by mutableStateOf("")
+    val gramsValue: Double? get() = Numbers.parse(grams)?.takeIf { it > 0 }
+}
+
 class FoodFormViewModel(private val session: UserSession, private val foodId: String?, prefillLabel: String) : ViewModel() {
 
     val foodIndex = session.foodIndex
+    val settings = session.userSettings
     val fields = FoodFields().apply { label = prefillLabel }
+    var mode by mutableStateOf(FormMode.FORM)
+        private set
+
+    /** Ingredient calculator (Flow 3a). Lives only as long as this screen; nothing is stored. */
+    val ingredients = mutableStateListOf<IngredientRow>()
+    var cookedGrams by mutableStateOf("")
+    var query by mutableStateOf("")
     var loading by mutableStateOf(foodId != null)
         private set
     var saving by mutableStateOf(false)
@@ -146,6 +176,51 @@ class FoodFormViewModel(private val session: UserSession, private val foodId: St
         }
     }
 
+    fun startIngredients() { mode = FormMode.INGREDIENTS }
+
+    fun startPickingIngredient() { query = ""; mode = FormMode.PICKING_INGREDIENT }
+
+    fun addIngredient(id: String) {
+        ingredients.add(IngredientRow(id))
+        mode = FormMode.INGREDIENTS
+    }
+
+    fun removeIngredient(row: IngredientRow) { ingredients.remove(row) }
+
+    /** One step back inside the screen; false when already on the form (caller leaves the screen). */
+    fun back(): Boolean = when (mode) {
+        FormMode.FORM -> false
+        FormMode.INGREDIENTS -> { mode = FormMode.FORM; true }
+        FormMode.PICKING_INGREDIENT -> { mode = FormMode.INGREDIENTS; true }
+    }
+
+    val cookedGramsValue: Double? get() = Numbers.parse(cookedGrams)?.takeIf { it > 0 }
+
+    /** Resolved ingredients, or null while any row is incomplete or its food unknown. */
+    fun resolvedIngredients(index: FoodIndex): List<Ingredient>? =
+        ingredients.map { row ->
+            val food = index.resolve(row.foodId) ?: return null
+            val g = row.gramsValue ?: return null
+            Ingredient(food, g)
+        }
+
+    fun composed(index: FoodIndex): Per100g? {
+        val list = resolvedIngredients(index) ?: return null
+        val cooked = cookedGramsValue ?: return null
+        return composePer100g(list, cooked)
+    }
+
+    /** Copies the computed values into the form fields and returns to the form. */
+    fun useComposed(index: FoodIndex) {
+        val r = composed(index) ?: return
+        fields.kcal = Numbers.editable(r.kcal)
+        fields.carbs = Numbers.editable(r.carbs)
+        fields.fat = Numbers.editable(r.fat)
+        fields.protein = Numbers.editable(r.protein)
+        fields.fibre = Numbers.editable(r.fibre)
+        mode = FormMode.FORM
+    }
+
     fun setArchived(archived: Boolean, onDone: () -> Unit) {
         val id = foodId ?: return
         saving = true
@@ -161,19 +236,39 @@ class FoodFormViewModel(private val session: UserSession, private val foodId: St
 fun FoodFormScreen(
     foodId: String?,
     prefillLabel: String,
+    pickedFoodId: StateFlow<String?>,
+    onConsumePickedFood: () -> Unit,
+    onCreateFood: (String) -> Unit,
     onSaved: (String) -> Unit,
     onBack: () -> Unit,
 ) {
     val vm = sessionViewModel(key = "food-${foodId ?: "new"}") { FoodFormViewModel(it, foodId, prefillLabel) }
     val index by vm.foodIndex.collectAsStateWithLifecycle()
+    val settings by vm.settings.collectAsStateWithLifecycle()
+    val picked by pickedFoodId.collectAsStateWithLifecycle()
     var confirmArchive by remember { mutableStateOf(false) }
+
+    // A food created from the ingredient picker ("Create new food") comes back through the back stack.
+    LaunchedEffect(picked) {
+        picked?.let {
+            vm.addIngredient(it)
+            onConsumePickedFood()
+        }
+    }
+    BackHandler(enabled = vm.mode != FormMode.FORM) { vm.back() }
+
+    val title = when (vm.mode) {
+        FormMode.FORM -> stringResource(if (vm.isEditing) R.string.edit_food else R.string.new_food)
+        FormMode.INGREDIENTS -> stringResource(R.string.from_ingredients)
+        FormMode.PICKING_INGREDIENT -> stringResource(R.string.pick_food)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(if (vm.isEditing) R.string.edit_food else R.string.new_food)) },
+                title = { Text(title) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { if (!vm.back()) onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
@@ -185,9 +280,26 @@ fun FoodFormScreen(
             LoadingBox(Modifier.padding(padding))
             return@Scaffold
         }
+        when (vm.mode) {
+            FormMode.PICKING_INGREDIENT -> FoodPicker(
+                index = currentIndex,
+                recentIds = settings?.lastUsedFoodIds.orEmpty(),
+                query = vm.query,
+                onQueryChange = { vm.query = it },
+                onPick = vm::addIngredient,
+                onCreate = { onCreateFood(vm.query) },
+                modifier = Modifier.padding(padding),
+            )
+            FormMode.INGREDIENTS -> IngredientCalculator(vm, currentIndex, Modifier.padding(padding))
+            FormMode.FORM -> {}
+        }
+        if (vm.mode != FormMode.FORM) return@Scaffold
+
         Column(modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
             FoodFieldsEditor(vm.fields, duplicate = vm.duplicateOf(currentIndex), autoFocusLabel = !vm.isEditing)
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(8.dp))
+            TextButton(onClick = vm::startIngredients) { Text(stringResource(R.string.calculate_from_ingredients)) }
+            Spacer(Modifier.height(16.dp))
             Button(onClick = { vm.save(onSaved) }, enabled = vm.fields.isValid && !vm.saving, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.save))
             }
@@ -218,6 +330,93 @@ fun FoodFormScreen(
             },
             dismissButton = { TextButton(onClick = { confirmArchive = false }) { Text(stringResource(R.string.cancel)) } },
         )
+    }
+}
+
+/**
+ * Ingredient calculator: raw ingredients with weights plus the weight of the finished dish give
+ * the values per 100 g (spec Flow 3a). Nothing here is stored; "Use these values" fills the form.
+ */
+@Composable
+private fun IngredientCalculator(vm: FoodFormViewModel, index: FoodIndex, modifier: Modifier = Modifier) {
+    val locale = currentLocale()
+    val g = stringResource(R.string.grams_unit)
+
+    Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text(stringResource(R.string.ingredients_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(16.dp))
+
+        if (vm.ingredients.isEmpty()) {
+            Text(stringResource(R.string.no_ingredients_yet), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(8.dp))
+        }
+        vm.ingredients.forEach { row ->
+            val food = index.resolve(row.foodId)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(food?.label ?: stringResource(R.string.unknown_food), style = MaterialTheme.typography.bodyLarge)
+                    food?.let {
+                        Text(
+                            "${Numbers.entered(it.kcalPer100g, locale)} ${stringResource(R.string.kcal_per_100g_short)}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                NumberField(
+                    value = row.grams,
+                    onValueChange = { row.grams = it },
+                    label = stringResource(R.string.weight_grams),
+                    suffix = g,
+                    isError = row.grams.isNotBlank() && row.gramsValue == null,
+                    modifier = Modifier.width(120.dp),
+                )
+                IconButton(onClick = { vm.removeIngredient(row) }) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.remove_ingredient))
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+        OutlinedButton(onClick = vm::startPickingIngredient, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Text(" " + stringResource(R.string.add_ingredient))
+        }
+
+        Spacer(Modifier.height(24.dp))
+        NumberField(
+            value = vm.cookedGrams,
+            onValueChange = { vm.cookedGrams = it },
+            label = stringResource(R.string.cooked_weight),
+            suffix = g,
+            isError = vm.cookedGrams.isNotBlank() && vm.cookedGramsValue == null,
+            imeAction = ImeAction.Done,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(24.dp))
+
+        val resolved = vm.resolvedIngredients(index)
+        if (!resolved.isNullOrEmpty()) {
+            val rawGrams = resolved.sumOf { it.grams }
+            val rawKcal = resolved.sumOf { it.food.kcalPer100g * it.grams / 100.0 }
+            Text(
+                stringResource(R.string.ingredients_total, Numbers.entered(rawGrams, locale), Numbers.kcal(rawKcal, locale)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(16.dp))
+        }
+        val result = vm.composed(index)
+        if (result != null) {
+            Text(stringResource(R.string.per_100g_result), style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(8.dp))
+            Text("${Numbers.kcal(result.kcal, locale)} ${stringResource(R.string.kcal_unit)}", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(8.dp))
+            MacroRow(result.protein, result.carbs, result.fat, result.fibre)
+            Spacer(Modifier.height(24.dp))
+        }
+        Button(onClick = { vm.useComposed(index) }, enabled = result != null, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.use_values))
+        }
     }
 }
 

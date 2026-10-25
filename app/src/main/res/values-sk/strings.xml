@@ -107,6 +107,18 @@
         <item quantity="other">Zapísal/a si ju %1$d-krát. Zmizne zo zoznamov a z výberu; tvoje jedlá ju zostanú používať.</item>
     </plurals>
 
+    <!-- Formulár potraviny: výpočet hodnôt zo surovín -->
+    <string name="calculate_from_ingredients">Vypočítať zo surovín…</string>
+    <string name="from_ingredients">Zo surovín</string>
+    <string name="ingredients_hint">Pridaj suroviny s ich surovou hmotnosťou a potom odváž hotové jedlo. Hodnoty na 100 g sa doplnia do formulára; samotný zoznam surovín sa neukladá.</string>
+    <string name="no_ingredients_yet">Zatiaľ žiadne suroviny.</string>
+    <string name="add_ingredient">Pridať surovinu</string>
+    <string name="remove_ingredient">Odstrániť</string>
+    <string name="cooked_weight">Hmotnosť hotového jedla</string>
+    <string name="ingredients_total">Suroviny: %1$s g, spolu %2$s kcal</string>
+    <string name="per_100g_result">Na 100 g hotového jedla</string>
+    <string name="use_values">Použiť tieto hodnoty</string>
+
     <!-- Zlúčenie -->
     <string name="merge_title">Zlúčiť potraviny</string>
     <string name="merge_survivor_hint">Vyber potravinu, ktorá zostane. Ostatné sa do nej zlúčia a všetky jedlá sa prepíšu na ňu.</string>
