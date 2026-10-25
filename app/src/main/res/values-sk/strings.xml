@@ -94,6 +94,7 @@
     <string name="food_label">Názov</string>
     <string name="kcal_per_100g">kcal na 100 g</string>
     <string name="per_100g_optional">Na 100 g (nepovinné)</string>
+    <string name="food_note">Poznámka (nepovinné)</string>
     <string name="duplicate_label_warning">„%1$s“ už existuje. Môžeš uložiť aj tak, alebo vybrať existujúcu.</string>
     <string name="macros_exceed_warning">Živiny dávajú dokopy viac než 100 g na 100 g.</string>
     <string name="archive">Archivovať</string>

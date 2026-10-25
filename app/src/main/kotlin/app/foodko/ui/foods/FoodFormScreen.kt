@@ -77,9 +77,11 @@ class FoodFields {
     var fat by mutableStateOf("")
     var protein by mutableStateOf("")
     var fibre by mutableStateOf("")
+    var note by mutableStateOf("")
 
     fun load(food: Food) {
         label = food.label
+        note = food.note.orEmpty()
         kcal = Numbers.editable(food.kcalPer100g)
         carbs = Numbers.editable(food.carbsPer100g)
         fat = Numbers.editable(food.fatPer100g)
@@ -110,6 +112,7 @@ class FoodFields {
         fatPer100g = optional(fat),
         proteinPer100g = optional(protein),
         fibrePer100g = optional(fibre),
+        note = note.trim().ifEmpty { null },
     )
 }
 
@@ -459,8 +462,18 @@ fun FoodFieldsEditor(fields: FoodFields, duplicate: Food?, autoFocusLabel: Boole
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NumberField(fields.fat, { fields.fat = it }, stringResource(R.string.fat), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fat))
-            NumberField(fields.fibre, { fields.fibre = it }, stringResource(R.string.fibre), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fibre), imeAction = ImeAction.Done)
+            NumberField(fields.fibre, { fields.fibre = it }, stringResource(R.string.fibre), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fibre))
         }
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = fields.note,
+            onValueChange = { fields.note = it },
+            label = { Text(stringResource(R.string.food_note)) },
+            minLines = 2,
+            maxLines = 4,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            modifier = Modifier.fillMaxWidth(),
+        )
         if (fields.macroSum > 100.0) {
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.macros_exceed_warning), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)

@@ -41,6 +41,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -352,6 +353,11 @@ private fun FoodPickRow(food: Food, perHundred: String, locale: java.util.Locale
     ListItem(
         modifier = Modifier.clickable(onClick = onClick),
         headlineContent = { Text(food.label) },
-        supportingContent = { Text("${Numbers.entered(food.kcalPer100g, locale)} $perHundred") },
+        supportingContent = {
+            Column {
+                Text("${Numbers.entered(food.kcalPer100g, locale)} $perHundred")
+                food.note?.let { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
+        },
     )
 }

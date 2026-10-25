@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -220,7 +221,10 @@ private fun FoodRow(
         modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
         headlineContent = { Text(food.label) },
         supportingContent = {
-            Text(listOf("${Numbers.entered(food.kcalPer100g, locale)} $perHundred", macros).filter { it.isNotEmpty() }.joinToString(" · "))
+            Column {
+                Text(listOf("${Numbers.entered(food.kcalPer100g, locale)} $perHundred", macros).filter { it.isNotEmpty() }.joinToString(" · "))
+                food.note?.let { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
         },
         trailingContent = if (selecting) ({ Checkbox(checked = selected, onCheckedChange = { onClick() }) }) else null,
     )

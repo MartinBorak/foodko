@@ -64,7 +64,7 @@ Any number of allowlisted users (a household). All are equal; there is no admin 
 ### Flow 3: Add a food to the shared database
 
 1. From **Foods** tab (**+ Food**) or from the food picker ("Create new food").
-2. Form: **Label** (required, text), **kcal per 100 g** (required, float), **Carbs**, **Fat**, **Protein**, **Fibre** (optional floats, grams per 100 g).
+2. Form: **Label** (required, text), **kcal per 100 g** (required, float), **Carbs**, **Fat**, **Protein**, **Fibre** (optional floats, grams per 100 g), **Note** (optional free text: brand, shop, how it was cooked; shown under the label in the Foods list and the picker).
 3. Save → food is in the shared database, visible to both users immediately.
 
 **Edge cases:**
@@ -184,7 +184,7 @@ Stored in Firestore. `uid` is the Firebase Auth user id.
 
 | Entity           | Firestore path                   | Key fields                                                                                                                                                                                                                      | Relationships                            |
 | ---------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Food**         | `foods/{foodId}`                 | `label` (string, required), `kcalPer100g` (float, required), `carbsPer100g`, `fatPer100g`, `proteinPer100g`, `fibrePer100g` (float, each optional/null), `labelLower` (for search), `archived` (bool), `mergedInto` (foodId or null), `createdBy` (uid), `createdAt`, `updatedAt` | Global, shared. Referenced by MealEntry. A food with `mergedInto` set is a redirect and is hidden everywhere. |
+| **Food**         | `foods/{foodId}`                 | `label` (string, required), `kcalPer100g` (float, required), `carbsPer100g`, `fatPer100g`, `proteinPer100g`, `fibrePer100g` (float, each optional/null), `note` (string, optional), `labelLower` (for search), `archived` (bool), `mergedInto` (foodId or null), `createdBy` (uid), `createdAt`, `updatedAt` | Global, shared. Referenced by MealEntry. A food with `mergedInto` set is a redirect and is hidden everywhere. |
 | **MealEntry**    | `users/{uid}/meals/{mealId}`     | `foodId` (string), `grams` (float), `timestamp` (UTC instant), `createdAt`, `updatedAt`                                                                                                                                         | Belongs to one user, points to one Food. |
 | **WeightEntry**  | `users/{uid}/weights/{weightId}` | `kg` (float), `timestamp` (UTC instant), `note` (optional string)                                                                                                                                                               | Belongs to one user.                     |
 | **UserSettings** | `users/{uid}`                    | `displayName`, `language`, `dailyKcalTarget` (float, optional), `lastUsedFoodIds` (list, for the "recent" section)                                                                                                              | One per user.                            |
@@ -220,7 +220,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | **Food picker**                  | Search field (auto-focused), "Recent" section, then filtered full list. "Create new food" row.                                                                                                           |
 | **Meal form**                    | Selected food (tap to change), grams field, date/time field, live nutrition preview, Save, Delete (when editing).                                                                                        |
 | **Foods** (tab)                  | Searchable list of all foods with kcal/100g. Tap to edit. Long-press to multi-select → **Merge**. Filter toggle to show archived foods. **+ Food**.                                                         |
-| **Food form**                    | Label, kcal/100g, carbs, fat, protein, fibre, "Calculate from ingredients…", Save, Archive / Un-archive.                                                                                                 |
+| **Food form**                    | Label, kcal/100g, carbs, fat, protein, fibre, note, "Calculate from ingredients…", Save, Archive / Un-archive.                                                                                           |
 | **Ingredients** (in Food form)   | Ingredient rows (food, grams, remove), Add ingredient (→ Food picker), weight of the finished dish, live per-100 g result, Use these values.                                                             |
 | **Merge screen**                 | Selected foods side by side with a survivor radio button; Food form prefilled from the survivor; Save.                                                                                                   |
 | **Weight** (tab)                 | Latest weight and change since first entry. Line chart (range selector). Inline "add weight" row. History list, tap to edit.                                                                             |

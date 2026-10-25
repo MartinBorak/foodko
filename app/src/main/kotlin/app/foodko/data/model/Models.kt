@@ -18,6 +18,8 @@ data class Food(
     val fatPer100g: Double? = null,
     val proteinPer100g: Double? = null,
     val fibrePer100g: Double? = null,
+    /** Free text: brand, shop, how it was cooked. Shown under the label in lists. */
+    val note: String? = null,
     /** Hidden from lists and the picker; meals keep referencing it. */
     val archived: Boolean = false,
     /** Set when this food was merged into another one; it then acts as a redirect. */
