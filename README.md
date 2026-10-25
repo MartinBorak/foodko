@@ -1,5 +1,7 @@
 # Foodko
 
+[![CI](https://github.com/MartinBorak/foodko/actions/workflows/ci.yml/badge.svg)](https://github.com/MartinBorak/foodko/actions/workflows/ci.yml)
+
 Food intake and weight tracker for a household: each user has their own meals and weight,
 everyone shares one food database. Android only, Kotlin + Jetpack Compose,
 data in Firebase (Google sign-in + Firestore). See `spec.md` for what it does and why.
@@ -32,8 +34,14 @@ Nothing else refers to a specific project: the release script reads the app id f
 
 ```sh
 ./gradlew installDebug      # phone connected over USB with USB debugging on
-./gradlew testDebugUnitTest
+./gradlew testDebugUnitTest # JVM unit tests (domain maths, ViewModels against in-memory fakes)
+scripts/rules-test.sh       # Firestore security rules tests on a local emulator (Node.js, JDK 21)
+scripts/check.sh            # all of the above plus Android lint; the same set runs in GitHub Actions
 ```
+
+CI (`.github/workflows/ci.yml`) runs the unit tests, lint, a release build and the rules tests on
+every push to `main` and every pull request. It builds with a placeholder `google-services.json`
+(`.github/ci/`), so it needs no Firebase credentials.
 
 ## Updating the phones
 

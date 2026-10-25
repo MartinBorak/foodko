@@ -36,18 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import app.foodko.R
-import app.foodko.UserSession
 import app.foodko.data.model.WeightEntry
 import app.foodko.data.toTimestamp
 import app.foodko.domain.Numbers
-import app.foodko.domain.WeightPoint
 import app.foodko.domain.change
 import app.foodko.domain.toLocalDate
-import app.foodko.domain.weightSeries
 import app.foodko.ui.components.DateTimeField
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.LineChart
@@ -55,43 +50,11 @@ import app.foodko.ui.components.LoadingBox
 import app.foodko.ui.components.NumberField
 import app.foodko.ui.components.RangeSelector
 import app.foodko.ui.components.Stat
-import app.foodko.ui.components.StatsRange
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.formatDateTime
 import app.foodko.ui.components.formatShortDate
 import app.foodko.ui.sessionViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
-
-data class WeightUiState(
-    val loading: Boolean = true,
-    val entries: List<WeightEntry> = emptyList(),
-    val series: List<WeightPoint> = emptyList(),
-    val range: StatsRange = StatsRange.MONTH,
-)
-
-class WeightViewModel(private val session: UserSession) : ViewModel() {
-
-    private val range = MutableStateFlow(StatsRange.MONTH)
-
-    val uiState: StateFlow<WeightUiState> = combine(session.allWeights, range) { entries, r ->
-        if (entries == null) return@combine WeightUiState(range = r)
-        val from = r.days?.let { LocalDate.now().minusDays(it - 1) }
-        val inRange = if (from == null) entries else entries.filter { !it.timestamp.toInstant().toLocalDate().isBefore(from) }
-        WeightUiState(false, entries.sortedByDescending { it.timestamp }, weightSeries(inRange), r)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), WeightUiState())
-
-    fun setRange(r: StatsRange) { range.value = r }
-
-    fun save(entry: WeightEntry) = viewModelScope.launch { session.weights.save(entry) }
-    fun delete(id: String) = viewModelScope.launch { session.weights.delete(id) }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

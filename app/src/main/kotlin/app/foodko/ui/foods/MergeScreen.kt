@@ -23,77 +23,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.foodko.R
-import app.foodko.UserSession
-import app.foodko.data.model.Food
 import app.foodko.domain.Numbers
 import app.foodko.ui.components.LoadingBox
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.sessionViewModel
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-
-class MergeViewModel(private val session: UserSession, private val ids: List<String>) : ViewModel() {
-
-    var foods by mutableStateOf<List<Food>>(emptyList())
-        private set
-    var usage by mutableStateOf<Map<String, Int>>(emptyMap())
-        private set
-    var survivorId by mutableStateOf<String?>(null)
-        private set
-    val fields = FoodFields()
-    var loading by mutableStateOf(true)
-        private set
-    var saving by mutableStateOf(false)
-        private set
-
-    init {
-        viewModelScope.launch {
-            val index = session.foodIndex.filterNotNull().first()
-            val meals = session.allMeals.filterNotNull().first()
-            foods = ids.mapNotNull { index.resolve(it) }.distinctBy { it.id }
-            usage = meals.groupingBy { index.resolveId(it.foodId) }.eachCount()
-            // Default survivor: most used in my meals, then the oldest.
-            foods.maxWithOrNull(
-                compareBy<Food> { usage[it.id] ?: 0 }.thenByDescending { it.createdAt?.seconds ?: Long.MAX_VALUE },
-            )?.let { choose(it.id) }
-            loading = false
-        }
-    }
-
-    fun choose(id: String) {
-        survivorId = id
-        foods.firstOrNull { it.id == id }?.let(fields::load)
-    }
-
-    val canSave: Boolean get() = foods.size >= 2 && survivorId != null && fields.isValid && !saving
-
-    fun save(onDone: () -> Unit) {
-        val survivor = foods.firstOrNull { it.id == survivorId } ?: return
-        saving = true
-        viewModelScope.launch {
-            session.foods.merge(
-                uid = session.uid,
-                survivor = fields.applyTo(survivor),
-                mergedIds = foods.map { it.id }.filter { it != survivor.id },
-                meals = session.meals,
-                settings = session.settings,
-                lastUsedFoodIds = session.userSettings.value?.lastUsedFoodIds.orEmpty(),
-            )
-            onDone()
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

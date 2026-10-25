@@ -22,3 +22,6 @@ app/google-services.json
 .firebaserc
 .firebase/
 *-debug.log
+
+# Firestore rules tests (rules-test/)
+node_modules/
