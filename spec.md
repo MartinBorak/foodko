@@ -157,7 +157,7 @@ Scenario: two users created "Skyr vanilkový" separately, with slightly differen
 | Sign out                                                                                  | MVP          |                                                                         |
 | Quick re-log: long-press a meal on Today → "Log again" (same food, same grams, timestamp now) | MVP      | Done.                                                                   |
 | Undo a merge                                                                              | Later        | Needs a merge log.                                                      |
-| Macro targets (protein/carbs/fat grams per day) in addition to kcal target                | Later        |                                                                         |
+| Macro targets derived from the kcal target, shown as rings on Today                       | MVP          | Done. Not editable: fixed energy shares, decision 9.                    |
 | Food values from ingredients: raw weights + finished weight → per 100 g                   | MVP          | Done. One-shot calculator in the food form, result is a plain food (Flow 3a, decision 8). |
 | Recipes (a food that remembers its ingredients and recomputes)                            | Rejected     | Decision 8: not wanted; the calculator above covers the use case.       |
 | Import foods from an open database (Open Food Facts) or barcode scan                      | Later        | Big feature; the manual form is enough to start.                        |
@@ -205,6 +205,7 @@ Stored in Firestore. `uid` is the Firebase Auth user id.
 - A "day" is local-time midnight to midnight on the phone.
 - **Numbers:** every numeric field (grams, kg, kcal, macros) accepts integers and decimals and is stored as a float. Display rule everywhere: a whole number is shown without a decimal part; otherwise trailing zeros are trimmed, max 1 decimal for computed macro grams (meal nutrition, totals, averages) and max 2 decimals for values as entered (food values, weight). Calories are always shown as whole numbers.
 - Daily kcal target applies to every day; no per-weekday variation.
+- Macro targets are derived from the kcal target, never stored: protein 20 %, carbs 50 %, fat 30 % of energy at 4 / 4 / 9 kcal per gram, fibre 14 g per 1000 kcal (`domain/Targets.kt`).
 - Foods are never hard-deleted. `archived` hides a food from lists and the picker; `mergedInto` makes it a redirect. Resolving a `foodId` always follows `mergedInto` chains to the final food.
 - Every place that resolves a food id for the signed-in user's own data (meals, `lastUsedFoodIds`) also rewrites it to the final id when it finds a redirect (self-healing, Flow 7).
 
@@ -287,3 +288,8 @@ Kept for the record; nothing is open right now.
 8. **Cooked dishes / recipes:** no recipes. The food form has a calculator that turns ingredients
    plus the finished weight into per-100 g values (Flow 3a); the result is a plain food and the
    ingredient list is not stored. Re-cooking a dish means a new food or editing the old one by hand.
+9. **Macro targets:** computed from the kcal target with fixed energy shares (business rules), not
+   entered per user. The reference ranges for the share of energy from each macro are the same
+   for adults regardless of sex; what differs between people is the calorie budget, which the
+   per-user kcal target already captures. "Over" is red for kcal, carbs and fat; amber for
+   protein and fibre, where exceeding the target is rarely a problem.
