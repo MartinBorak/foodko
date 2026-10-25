@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,9 +53,9 @@ fun BarChart(
     modifier: Modifier = Modifier,
     height: Dp = 180.dp,
     formatValue: (Double) -> String = { Numbers.kcal(it) },
+    overColor: Color = MaterialTheme.colorScheme.error,
 ) {
     val barColor = MaterialTheme.colorScheme.primary
-    val overColor = MaterialTheme.colorScheme.error
     val selectedColor = MaterialTheme.colorScheme.tertiary
     val targetColor = MaterialTheme.colorScheme.onSurfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ import app.foodko.domain.change
 import app.foodko.domain.dailySeries
 import app.foodko.domain.joinMeals
 import app.foodko.domain.macroSplit
+import app.foodko.domain.macroTargetsFor
 import app.foodko.domain.toLocalDate
 import app.foodko.domain.weightSeries
 import app.foodko.ui.components.BarChart
@@ -55,6 +57,7 @@ import app.foodko.ui.components.StatsRange
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.formatShortDate
 import app.foodko.ui.sessionViewModel
+import app.foodko.ui.theme.warningColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -105,6 +108,33 @@ class StatsViewModel(session: UserSession) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
     fun setRange(r: StatsRange) { range.value = r }
+}
+
+/** Bar chart of one macro's grams per day with its derived target line. */
+@Composable
+private fun MacroDailyCard(
+    title: String,
+    values: List<Double>,
+    target: Double?,
+    state: StatsUiState,
+    overColor: Color = MaterialTheme.colorScheme.error,
+) {
+    val locale = currentLocale()
+    val g = stringResource(R.string.grams_unit)
+    StatsCard(title) {
+        if (state.loggedDays == 0) {
+            EmptyText(stringResource(R.string.no_data_yet))
+        } else {
+            BarChart(
+                values = values,
+                labels = state.daily.map { formatShortDate(it.date, locale) },
+                target = target,
+                height = 140.dp,
+                formatValue = { "${Numbers.computed(it, locale)} $g" },
+                overColor = overColor,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,6 +216,13 @@ fun StatsScreen(onSettings: () -> Unit) {
                     MacroSplitBar(split, stringResource(R.string.protein), stringResource(R.string.carbs), stringResource(R.string.fat))
                 }
             }
+
+            // Daily intake per macro, same order as the Today grid; targets derived from the kcal target.
+            val macroTargets = state.target?.takeIf { it > 0 }?.let { macroTargetsFor(it) }
+            MacroDailyCard(stringResource(R.string.daily_carbs), state.daily.map { it.totals.carbs }, macroTargets?.carbs, state)
+            MacroDailyCard(stringResource(R.string.daily_fat), state.daily.map { it.totals.fat }, macroTargets?.fat, state)
+            MacroDailyCard(stringResource(R.string.daily_protein), state.daily.map { it.totals.protein }, macroTargets?.protein, state, overColor = warningColor())
+            MacroDailyCard(stringResource(R.string.daily_fibre), state.daily.map { it.totals.fibre }, macroTargets?.fibre, state, overColor = warningColor())
 
             StatsCard(stringResource(R.string.weight_trend)) {
                 if (state.weights.isEmpty()) {

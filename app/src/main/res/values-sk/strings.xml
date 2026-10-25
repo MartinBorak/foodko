@@ -161,6 +161,10 @@
     <string name="average_per_logged_day">Priemer na zapísaný deň</string>
     <string name="vs_target">oproti cieľu</string>
     <string name="macro_split">Energia zo živín</string>
+    <string name="daily_carbs">Denné sacharidy</string>
+    <string name="daily_fat">Denné tuky</string>
+    <string name="daily_protein">Denné bielkoviny</string>
+    <string name="daily_fibre">Denná vláknina</string>
     <string name="weight_trend">Vývoj váhy</string>
     <plurals name="logged_days">
         <item quantity="one">%1$d zapísaný deň</item>

@@ -154,6 +154,7 @@ Scenario: two users created "Skyr vanilkový" separately, with slightly differen
 | **Stats** — average daily kcal, protein, carbs, fat, fibre over the range                 | MVP          |                                                                         |
 | **Stats** — macro split (% of kcal from protein / carbs / fat) for the range              | MVP          |                                                                         |
 | **Stats** — weight chart with 7-day moving average and total change over range            | MVP          |                                                                         |
+| **Stats** — daily bar chart per macro (carbs, fat, protein, fibre) with derived target line | MVP          | Done. Under "Energy from macros"; over = red, amber for protein/fibre.  |
 | Sign out                                                                                  | MVP          |                                                                         |
 | Quick re-log: long-press a meal on Today → "Log again" (same food, same grams, timestamp now) | MVP      | Done.                                                                   |
 | Undo a merge                                                                              | Later        | Needs a merge log.                                                      |
@@ -225,7 +226,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | **Ingredients** (in Food form)   | Ingredient rows (food, grams, remove), Add ingredient (→ Food picker), weight of the finished dish, live per-100 g result, Use these values.                                                             |
 | **Merge screen**                 | Selected foods side by side with a survivor radio button; Food form prefilled from the survivor; Save.                                                                                                   |
 | **Weight** (tab)                 | Latest weight and change since first entry. Line chart (range selector). Inline "add weight" row. History list, tap to edit.                                                                             |
-| **Stats** (tab)                  | Range selector (7 / 30 / 90 / all). Daily kcal bar chart with target line. Averages card. Macro split chart. Weight chart with moving average.                                                           |
+| **Stats** (tab)                  | Range selector (7 / 30 / 90 / all). Daily kcal bar chart with target line. Averages card. Macro split chart. Four daily bar charts, one per macro (carbs, fat, protein, fibre), with derived target lines. Weight chart with moving average.                                                           |
 | **Settings** (from top-bar menu) | Display name, language, daily kcal target, signed-in account, Sign out.                                                                                                                                  |
 
 

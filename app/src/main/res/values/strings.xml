@@ -159,6 +159,10 @@
     <string name="average_per_logged_day">Average per logged day</string>
     <string name="vs_target">vs. target</string>
     <string name="macro_split">Energy from macros</string>
+    <string name="daily_carbs">Daily carbs</string>
+    <string name="daily_fat">Daily fat</string>
+    <string name="daily_protein">Daily protein</string>
+    <string name="daily_fibre">Daily fibre</string>
     <string name="weight_trend">Weight trend</string>
     <plurals name="logged_days">
         <item quantity="one">%1$d logged day</item>
