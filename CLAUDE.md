@@ -19,13 +19,35 @@ No Android Studio on this machine; everything runs through the Gradle wrapper fr
 ./gradlew assembleDebug            # build app/build/outputs/apk/debug/app-debug.apk
 ./gradlew installDebug             # build + install on the USB-connected phone (adb)
 ./gradlew testDebugUnitTest        # all JVM unit tests
-./gradlew testDebugUnitTest --tests 'app.foodko.domain.NutritionTest'   # one test class
+./gradlew testDebugUnitTest --tests 'app.foodko.ui.today.TodayViewModelTest'   # one test class
 ./gradlew lintDebug                # Android lint, report in app/build/reports/lint-results-debug.html
+scripts/rules-test.sh              # Firestore security rules tests on a throwaway emulator (Node + JDK 21)
+scripts/check.sh                   # everything CI runs: unit tests, lint, rules tests (--fast: tests only)
 adb devices                        # adb is on PATH via Homebrew command-line tools
 ```
 
-Unit tests live under `app/src/test/kotlin` and target pure Kotlin code (nutrition and statistics
-maths, number formatting, redirect resolution). There are no instrumented or UI tests.
+### Tests
+
+- **JVM unit tests** (`app/src/test/kotlin`, JUnit 4 + kotlinx-coroutines-test), run on every push by
+  GitHub Actions (`.github/workflows/ci.yml`). Three layers:
+  - `domain/`: nutrition and statistics maths, number formatting, redirect resolution, targets.
+  - `data/`: `RedirectHealerTest` and `UserSessionTest` against the in-memory fakes in
+    `data/Fakes.kt`.
+  - `ui/<feature>/<Feature>ViewModelTest`: every ViewModel, driven through a `UserSession` built
+    on the fakes by `TestWorld.kt` with a fixed `Clock` (`CLOCK`, `TODAY`, `ZONE`) and
+    `MainDispatcherRule` for `viewModelScope`. Build the ViewModel in `@Before`, not in a field
+    initialiser, or it captures the wrong Main dispatcher. A ViewModel's `uiState` only computes
+    while collected: `backgroundScope.launch(main.dispatcher) { vm.uiState.collect() }` first.
+  - Firebase SDK classes mostly load on the JVM (`Timestamp` is fine) but anything touching
+    Android statics does not (`FirebaseFirestoreException` fails in its static initialiser);
+    keep such types behind the `data/` boundary.
+- **Firestore rules tests** (`rules-test/`, `@firebase/rules-unit-testing`, Node's built-in test
+  runner) prove the allowlist and per-user isolation. `scripts/rules-test.sh` starts a Firestore
+  emulator with a `demo-` project id, so no Firebase login or `google-services.json` is needed.
+- **No instrumented or Compose UI tests.** Screens are checked by hand on the mock build
+  (below); a UI test would need an emulator in CI for little gain at this size.
+- **CI** has no Firebase identity: `.github/ci/google-services.json` is a placeholder copied into
+  `app/` so the Google services plugin can generate its resources. Never commit the real one.
 
 Firestore security rules: `firestore.rules`, deployed with `firebase deploy --only firestore:rules`
 (Firebase CLI; `.firebaserc` is gitignored, run `firebase use <project-id>` once per machine).
@@ -87,15 +109,24 @@ Gboard in hardware-keyboard mode, use the in-app back arrow.
 ## Architecture
 
 Single module `:app`, package `app.foodko`. Manual dependency wiring (no Hilt/Koin): an
-`AppContainer` created in `FoodkoApp` owns the repositories; ViewModels get them through a factory.
+`AppContainer` created in `FoodkoApp` owns the Firestore repositories and builds one `UserSession`
+per signed-in user; ViewModels take the session (`sessionViewModel { TodayViewModel(it) }`).
 
 - `data/model` — Firestore document classes (kept by ProGuard rules; field names are the Firestore
   field names, don't rename casually).
-- `data/` repositories — thin Firestore wrappers exposing `Flow`s via snapshot listeners. Firestore
-  persistent cache is on, so writes work offline and the UI never waits for the network.
+- `data/Repositories.kt` — the repository **interfaces** (`FoodRepository`, `MealRepository`,
+  `WeightRepository`, `SettingsRepository`, `FoodMerger`). `data/Firestore*Repository.kt` implement
+  them as thin Firestore wrappers exposing `Flow`s via snapshot listeners; the merge batch lives
+  in `FirestoreFoodRepository.merge`. Firestore persistent cache is on, so writes work offline and
+  the UI never waits for the network. A `PERMISSION_DENIED` listener error surfaces as
+  `AccessDeniedException` (`data/Firestore.kt`); nothing outside `data/` sees SDK exception types.
+- `UserSession` (`AppContainer.kt`) — one shared `StateFlow` per collection, the `RedirectHealer`,
+  and `mergeFoods`. Its constructor takes the interfaces, a `CoroutineScope` and a flag for demo
+  seeding, which is what makes the ViewModels unit-testable.
 - `domain/` — pure Kotlin: nutrition maths, daily aggregation, statistics, food-redirect resolution.
-  This is what the unit tests cover.
-- `ui/<feature>` — one package per screen with its ViewModel; `ui/theme`, `ui/navigation`.
+- `ui/<feature>` — one package per screen: `<Feature>Screen.kt` (composables) and
+  `<Feature>ViewModel.kt` (state + actions, no Android imports). ViewModels that depend on the
+  current time take a `java.time.Clock` with a system default. `ui/theme`, `ui/components`.
 
 Firestore layout (see spec §6): `foods/{id}` is shared by all users; everything private is under
 `users/{uid}` (`meals`, `weights`, settings fields on the user doc). Rules enforce that a user only

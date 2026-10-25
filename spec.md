@@ -235,7 +235,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 ## 8. Platform and tech
 
 - **Platform:** Android only. `minSdk 33` (Android 13, for the built-in per-app language API used by the Slovak/English switch), `targetSdk` = latest stable. Tested on Pixel 9 Pro XL and Pixel 8a.
-- **Stack:** Kotlin, Jetpack Compose, Material 3, Navigation Compose, ViewModel + Kotlin Flows, Firebase Auth + Cloud Firestore (with offline persistence on), charts drawn with Compose `Canvas` (three simple charts, no charting library). Gradle with version catalog. No DI framework (manual wiring is enough at this size). Unit tests for the nutrition/statistics calculations; no UI tests for the prototype.
+- **Stack:** Kotlin, Jetpack Compose, Material 3, Navigation Compose, ViewModel + Kotlin Flows, Firebase Auth + Cloud Firestore (with offline persistence on), charts drawn with Compose `Canvas` (three simple charts, no charting library). Gradle with version catalog. No DI framework (manual wiring is enough at this size; repositories are interfaces so the ViewModels can be tested against in-memory fakes). Tests: JVM unit tests for the domain maths and for every ViewModel, a Firestore security rules test on the emulator, Android lint; all run in GitHub Actions on every push (decision 10). No instrumented/Compose UI tests.
 - **Hosting / deployment:** Firebase project (Spark free plan) in your Google account. App installed over USB via Android Studio or `./gradlew installDebug`. Both phones get the same build from the same machine.
 - **Authentication:** Google Sign-In through Firebase Auth. Allowlist of e-mails enforced in Firestore security rules (the app only shows a friendly message when refused).
 - **Constraints:** No cross-platform frameworks. No paid services. The repo must contain no secrets: `google-services.json` is gitignored and documented in the README.
@@ -271,7 +271,7 @@ No other integrations.
 - [x] Stats show a daily kcal chart, averages, macro split and weight trend for 7/30/90/all.
 - [ ] Logging a meal in airplane mode works and appears in Firestore once back online.
 - [ ] Uninstalling the app and reinstalling it restores everything after sign-in.
-- [ ] Neither user can see the other's meals or weights (verified through the Firestore rules test).
+- [x] Neither user can see the other's meals or weights (verified through the Firestore rules test).
 - [ ] Merging duplicate foods rewrites my meals immediately; other users' meals show the survivor right away and are rewritten on their phones after the next sync.
 - [x] Switching the language in Settings changes the whole UI to Slovak / English without a restart.
 
@@ -294,3 +294,8 @@ Kept for the record; nothing is open right now.
    for adults regardless of sex; what differs between people is the calorie budget, which the
    per-user kcal target already captures. "Over" is red for kcal, carbs and fat; amber for
    protein and fibre, where exceeding the target is rarely a problem.
+10. **Testing and CI:** the automated checks are JVM unit tests (domain + ViewModels on in-memory
+    repository fakes with a fixed clock), Firestore rules tests on the emulator, and Android lint,
+    run by GitHub Actions on every push and pull request. No Compose UI or instrumented tests:
+    they would need an Android emulator in CI and the screens are thin over the ViewModels; the
+    mock build (`-PfoodkoMock=true`) is the way to look at the UI.
