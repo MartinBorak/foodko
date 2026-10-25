@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
@@ -17,3 +18,11 @@ fun FoodkoTheme(
     val colorScheme = if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     MaterialTheme(colorScheme = colorScheme, content = content)
 }
+
+/** "Within the target" green. Material 3 has no success role and dynamic colour has no green. */
+@Composable
+fun successColor(): Color = if (isSystemInDarkTheme()) Color(0xFF81C784) else Color(0xFF2E7D32)
+
+/** "Over, but that's fine" amber: protein and fibre past their target. */
+@Composable
+fun warningColor(): Color = if (isSystemInDarkTheme()) Color(0xFFFFD54F) else Color(0xFFF9A825)

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -56,6 +57,7 @@ import app.foodko.data.model.MealEntry
 import app.foodko.data.toTimestamp
 import app.foodko.domain.MealWithFood
 import app.foodko.domain.Numbers
+import app.foodko.domain.macroTargetsFor
 import app.foodko.domain.Totals
 import app.foodko.domain.endInstant
 import app.foodko.domain.joinMeals
@@ -65,6 +67,8 @@ import app.foodko.ui.components.LoadingBox
 import app.foodko.ui.components.MacroRow
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.Stat
+import app.foodko.ui.components.TargetRing
+import app.foodko.ui.theme.warningColor
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.dayTitle
 import app.foodko.ui.components.formatTime
@@ -241,22 +245,50 @@ fun TodayScreen(
 @Composable
 private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Modifier) {
     val locale = currentLocale()
+    val kcalUnit = stringResource(R.string.kcal_unit)
     Card(modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                Stat(stringResource(R.string.eaten_kcal), Numbers.kcal(totals.kcal, locale), emphasis = true)
-                if (target != null && target > 0) {
-                    Stat(stringResource(R.string.target_kcal), Numbers.kcal(target, locale))
-                    val diff = target - totals.kcal
-                    Stat(
-                        if (diff >= 0) stringResource(R.string.remaining_kcal) else stringResource(R.string.over_kcal),
-                        Numbers.kcal(kotlin.math.abs(diff), locale),
-                        valueColor = if (diff >= 0) Color.Unspecified else MaterialTheme.colorScheme.error,
-                    )
+            if (target != null && target > 0) {
+                // Ring: share of the daily target eaten; red once over it (spec §7, Today).
+                val diff = target - totals.kcal
+                val over = diff < 0
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    TargetRing(totals.kcal, target)
+                    Spacer(Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            "${Numbers.kcal(totals.kcal, locale)} / ${Numbers.kcal(target, locale)} $kcalUnit",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = if (over) MaterialTheme.colorScheme.error else Color.Unspecified,
+                        )
+                        Text(
+                            "${Numbers.kcal(kotlin.math.abs(diff), locale)} " +
+                                stringResource(if (over) R.string.over_kcal else R.string.remaining_kcal).lowercase(locale),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            } else {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    Stat(stringResource(R.string.eaten_kcal), Numbers.kcal(totals.kcal, locale), emphasis = true)
                 }
             }
             Spacer(Modifier.height(12.dp))
-            MacroRow(totals)
+            if (target != null && target > 0) {
+                val t = macroTargetsFor(target)
+                Row(Modifier.fillMaxWidth()) {
+                    MacroTargetCell(stringResource(R.string.carbs), totals.carbs, t.carbs, Modifier.weight(1f))
+                    MacroTargetCell(stringResource(R.string.fat), totals.fat, t.fat, Modifier.weight(1f))
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth()) {
+                    MacroTargetCell(stringResource(R.string.protein), totals.protein, t.protein, Modifier.weight(1f), overColor = warningColor())
+                    MacroTargetCell(stringResource(R.string.fibre), totals.fibre, t.fibre, Modifier.weight(1f), overColor = warningColor())
+                }
+            } else {
+                MacroRow(totals)
+            }
             if (totals.incomplete) {
                 Spacer(Modifier.height(8.dp))
                 Text(
@@ -265,6 +297,35 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+        }
+    }
+}
+
+/**
+ * One macro against its derived daily target: small ring, "eaten / target g", label.
+ * [overColor] is red for the macros where going over matters, amber where it hardly does.
+ */
+@Composable
+private fun MacroTargetCell(
+    label: String,
+    value: Double,
+    target: Double,
+    modifier: Modifier = Modifier,
+    overColor: Color = MaterialTheme.colorScheme.error,
+) {
+    val locale = currentLocale()
+    val g = stringResource(R.string.grams_unit)
+    val over = value > target
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        TargetRing(value, target, size = 36.dp, stroke = 5.dp, overColor = overColor)
+        Spacer(Modifier.width(8.dp))
+        Column {
+            Text(
+                "${Numbers.computed(value, locale)} / ${Numbers.kcal(target, locale)} $g",
+                style = MaterialTheme.typography.titleSmall,
+                color = if (over) overColor else Color.Unspecified,
+            )
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
