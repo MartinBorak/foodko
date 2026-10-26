@@ -1,7 +1,14 @@
 package app.foodko.ui.today
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,10 +49,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -109,7 +119,13 @@ fun TodayScreen(
             )
         },
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val canGoForward = state.date < LocalDate.now()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .daySwipe(onPrevious = { vm.shiftDay(-1) }, onNext = { if (canGoForward) vm.shiftDay(1) }),
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -121,33 +137,26 @@ fun TodayScreen(
                 if (state.date != LocalDate.now()) {
                     TextButton(onClick = { vm.setDate(LocalDate.now()) }) { Text(stringResource(R.string.today)) }
                 }
-                IconButton(onClick = { vm.shiftDay(1) }, enabled = state.date < LocalDate.now()) {
+                IconButton(onClick = { vm.shiftDay(1) }, enabled = canGoForward) {
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(R.string.next_day))
                 }
             }
 
-            if (state.loading) {
-                LoadingBox()
-                return@Column
-            }
-
-            TotalsCard(state.totals, state.target, Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(8.dp))
-
-            if (state.meals.isEmpty()) {
-                EmptyText(stringResource(R.string.no_meals_today))
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.meals, key = { it.meal.id }) { item ->
-                        MealRow(
-                            item, locale,
-                            onClick = { onEditMeal(item.meal.id) },
-                            onLongClick = { logAgainItem = item },
-                        )
-                        HorizontalDivider()
-                    }
-                    item { Spacer(Modifier.height(88.dp)) } // room for the FAB
-                }
+            // Slide the day in from the side it lies on, whether reached by arrow, swipe or picker.
+            AnimatedContent(
+                targetState = state,
+                contentKey = { it.date },
+                transitionSpec = {
+                    val dir = if (targetState.date > initialState.date) 1 else -1
+                    (slideInHorizontally { it * dir } + fadeIn()) togetherWith (slideOutHorizontally { -it * dir } + fadeOut())
+                },
+                label = "day",
+            ) { day ->
+                DayContent(
+                    day, locale,
+                    onEditMeal = onEditMeal,
+                    onLogAgain = { logAgainItem = it },
+                )
             }
         }
     }
@@ -184,6 +193,66 @@ fun TodayScreen(
             },
             dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) } },
         ) { DatePicker(state = pickerState) }
+    }
+}
+
+@Composable
+private fun DayContent(
+    state: TodayUiState,
+    locale: java.util.Locale,
+    onEditMeal: (String) -> Unit,
+    onLogAgain: (MealWithFood) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (state.loading) {
+            LoadingBox()
+            return@Column
+        }
+
+        TotalsCard(state.totals, state.target, Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(8.dp))
+
+        if (state.meals.isEmpty()) {
+            EmptyText(stringResource(R.string.no_meals_today))
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.meals, key = { it.meal.id }) { item ->
+                    MealRow(
+                        item, locale,
+                        onClick = { onEditMeal(item.meal.id) },
+                        onLongClick = { onLogAgain(item) },
+                    )
+                    HorizontalDivider()
+                }
+                item { Spacer(Modifier.height(88.dp)) } // room for the FAB
+            }
+        }
+    }
+}
+
+/**
+ * Horizontal swipe anywhere on the day: right goes to the previous day, left to the next.
+ * Vertical drags still scroll the meal list, which claims them first.
+ */
+private fun Modifier.daySwipe(onPrevious: () -> Unit, onNext: () -> Unit): Modifier = composed {
+    val previous by rememberUpdatedState(onPrevious)
+    val next by rememberUpdatedState(onNext)
+    pointerInput(Unit) {
+        val threshold = 64.dp.toPx()
+        var dragged = 0f
+        detectHorizontalDragGestures(
+            onDragStart = { dragged = 0f },
+            onDragEnd = {
+                when {
+                    dragged > threshold -> previous()
+                    dragged < -threshold -> next()
+                }
+            },
+            onHorizontalDrag = { change, amount ->
+                change.consume()
+                dragged += amount
+            },
+        )
     }
 }
 

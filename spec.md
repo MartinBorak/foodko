@@ -104,7 +104,7 @@ A one-shot calculator inside the food form; the result is an ordinary food, noth
 
 ### Flow 5: Review and edit history
 
-1. **Today** has a date header with ← → arrows and a calendar picker; it shows any day, not just today. The day view lists meals in time order with grams and kcal per item and the day's totals at the top.
+1. **Today** has a date header with ← → arrows and a calendar picker, and a horizontal swipe also steps a day (right = previous, left = next, never past today); it shows any day, not just today. The day view lists meals in time order with grams and kcal per item and the day's totals at the top.
 2. Tap a meal → the same Meal form as Flow 2, prefilled → change food, grams or timestamp → Save. Delete button in the form, behind a confirmation dialog.
 3. Weight entries: tap in the Weight history list → edit value/timestamp or delete.
 4. Foods: tap in the Foods list → edit any field. "Delete" archives the food: it disappears from the list and the picker, but meals that reference it (of either user) keep showing it and its nutrition. If any of *my* meals use it, the confirmation says how many. Archived foods can be shown via a filter in the Foods list and un-archived from the form.
