@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -103,6 +102,10 @@ fun MealFormScreen(
                             Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                         }
                     }
+                    // In the top bar so the keyboard never covers it.
+                    if (!vm.picking && !vm.loading) {
+                        TextButton(onClick = { vm.save(onDone) }, enabled = vm.canSave) { Text(stringResource(R.string.save)) }
+                    }
                 },
             )
         },
@@ -174,11 +177,6 @@ private fun MealForm(vm: MealFormViewModel, index: FoodIndex, modifier: Modifier
             Text("${Numbers.kcal(n.kcal, locale)} ${stringResource(R.string.kcal_unit)}", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             MacroRow(n)
-            Spacer(Modifier.height(24.dp))
-        }
-
-        Button(onClick = { vm.save(onDone) }, enabled = vm.canSave, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.save))
         }
     }
 }

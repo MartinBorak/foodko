@@ -99,6 +99,14 @@ fun FoodFormScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
+                actions = {
+                    // In the top bar so the keyboard never covers it.
+                    if (vm.mode == FormMode.FORM && !vm.loading) {
+                        TextButton(onClick = { vm.save(onSaved) }, enabled = vm.fields.isValid && !vm.saving) {
+                            Text(stringResource(R.string.save))
+                        }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -126,10 +134,6 @@ fun FoodFormScreen(
             FoodFieldsEditor(vm.fields, duplicate = vm.duplicateOf(currentIndex), autoFocusLabel = !vm.isEditing)
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = vm::startIngredients) { Text(stringResource(R.string.calculate_from_ingredients)) }
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = { vm.save(onSaved) }, enabled = vm.fields.isValid && !vm.saving, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.save))
-            }
             val existing = vm.existing
             if (existing != null) {
                 Spacer(Modifier.height(12.dp))
