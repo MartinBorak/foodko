@@ -26,3 +26,10 @@ fun successColor(): Color = if (isSystemInDarkTheme()) Color(0xFF81C784) else Co
 /** "Over, but that's fine" amber: protein and fibre past their target. */
 @Composable
 fun warningColor(): Color = if (isSystemInDarkTheme()) Color(0xFFFFD54F) else Color(0xFFF9A825)
+
+/**
+ * "Over the target" red. Dynamic dark colour turns the error role into a pale pink that hardly
+ * reads as red on a card, so dark uses a saturated red that still has 4.5:1 contrast there.
+ */
+@Composable
+fun dangerColor(): Color = if (isSystemInDarkTheme()) Color(0xFFFF7369) else MaterialTheme.colorScheme.error

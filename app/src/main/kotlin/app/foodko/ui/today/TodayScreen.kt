@@ -70,6 +70,7 @@ import app.foodko.ui.components.MacroRow
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.Stat
 import app.foodko.ui.components.TargetRing
+import app.foodko.ui.theme.dangerColor
 import app.foodko.ui.theme.warningColor
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.dayTitle
@@ -273,13 +274,13 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
                         Text(
                             "${Numbers.kcal(totals.kcal, locale)} / ${Numbers.kcal(target, locale)} $kcalUnit",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = if (over) MaterialTheme.colorScheme.error else Color.Unspecified,
+                            color = if (over) dangerColor() else Color.Unspecified,
                         )
                         Text(
                             "${Numbers.kcal(kotlin.math.abs(diff), locale)} " +
                                 stringResource(if (over) R.string.over_kcal else R.string.remaining_kcal).lowercase(locale),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (over) dangerColor() else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -325,7 +326,7 @@ private fun MacroTargetCell(
     value: Double,
     target: Double,
     modifier: Modifier = Modifier,
-    overColor: Color = MaterialTheme.colorScheme.error,
+    overColor: Color = dangerColor(),
 ) {
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)

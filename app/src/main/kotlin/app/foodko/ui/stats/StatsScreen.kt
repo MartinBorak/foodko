@@ -44,6 +44,7 @@ import app.foodko.ui.components.Stat
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.formatShortDate
 import app.foodko.ui.sessionViewModel
+import app.foodko.ui.theme.dangerColor
 import app.foodko.ui.theme.warningColor
 
 /** Bar chart of one macro's grams per day with its derived target line. */
@@ -53,7 +54,7 @@ private fun MacroDailyCard(
     values: List<Double>,
     target: Double?,
     state: StatsUiState,
-    overColor: Color = MaterialTheme.colorScheme.error,
+    overColor: Color = dangerColor(),
 ) {
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)

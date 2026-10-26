@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import app.foodko.ui.theme.dangerColor
 import app.foodko.ui.theme.successColor
 
 /**
@@ -25,7 +26,7 @@ fun TargetRing(
     modifier: Modifier = Modifier,
     size: Dp = 72.dp,
     stroke: Dp = 8.dp,
-    overColor: Color = MaterialTheme.colorScheme.error,
+    overColor: Color = dangerColor(),
 ) {
     val over = value > target
     val fraction = if (over) 1f else (value / target).toFloat().coerceIn(0f, 1f)

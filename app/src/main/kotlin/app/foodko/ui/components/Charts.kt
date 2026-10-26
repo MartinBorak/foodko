@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.foodko.domain.MacroSplit
 import app.foodko.domain.Numbers
+import app.foodko.ui.theme.dangerColor
 import kotlin.math.max
 
 /**
@@ -53,7 +54,7 @@ fun BarChart(
     modifier: Modifier = Modifier,
     height: Dp = 180.dp,
     formatValue: (Double) -> String = { Numbers.kcal(it) },
-    overColor: Color = MaterialTheme.colorScheme.error,
+    overColor: Color = dangerColor(),
 ) {
     val barColor = MaterialTheme.colorScheme.primary
     val selectedColor = MaterialTheme.colorScheme.tertiary
