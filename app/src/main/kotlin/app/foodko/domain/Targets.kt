@@ -19,3 +19,14 @@ const val PROTEIN_SHARE = 0.20
 const val CARBS_SHARE = 0.50
 const val FAT_SHARE = 0.30
 const val FIBRE_G_PER_1000_KCAL = 14.0
+
+/**
+ * A daily target is a limit (kcal, carbs, fat: going over is bad) or a goal (protein, fibre:
+ * reaching it is good, and there is no upper cap). Spec decision 9.
+ */
+enum class TargetKind {
+    Limit, Goal;
+
+    /** Whether [value] has crossed [target]: gone above a limit, or reached a goal. */
+    fun crossed(value: Double, target: Double): Boolean = if (this == Limit) value > target else value >= target
+}

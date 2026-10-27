@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.foodko.R
 import app.foodko.domain.MealWithFood
+import app.foodko.domain.TargetKind
 import app.foodko.domain.Numbers
 import app.foodko.domain.macroTargetsFor
 import app.foodko.domain.Totals
@@ -70,8 +71,8 @@ import app.foodko.ui.components.MacroRow
 import app.foodko.ui.components.EmptyText
 import app.foodko.ui.components.Stat
 import app.foodko.ui.components.TargetRing
+import app.foodko.ui.theme.crossedColor
 import app.foodko.ui.theme.dangerColor
-import app.foodko.ui.theme.warningColor
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.dayTitle
 import app.foodko.ui.components.formatTime
@@ -298,8 +299,8 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth()) {
-                    MacroTargetCell(stringResource(R.string.protein), totals.protein, t.protein, Modifier.weight(1f), overColor = warningColor())
-                    MacroTargetCell(stringResource(R.string.fibre), totals.fibre, t.fibre, Modifier.weight(1f), overColor = warningColor())
+                    MacroTargetCell(stringResource(R.string.protein), totals.protein, t.protein, Modifier.weight(1f), kind = TargetKind.Goal)
+                    MacroTargetCell(stringResource(R.string.fibre), totals.fibre, t.fibre, Modifier.weight(1f), kind = TargetKind.Goal)
                 }
             } else {
                 MacroRow(totals)
@@ -318,7 +319,7 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
 
 /**
  * One macro against its derived daily target: small ring, "eaten / target g", label.
- * [overColor] is red for the macros where going over matters, amber where it hardly does.
+ * Its text turns red past a limit (carbs, fat) and green once a goal (protein, fibre) is reached.
  */
 @Composable
 private fun MacroTargetCell(
@@ -326,19 +327,19 @@ private fun MacroTargetCell(
     value: Double,
     target: Double,
     modifier: Modifier = Modifier,
-    overColor: Color = dangerColor(),
+    kind: TargetKind = TargetKind.Limit,
 ) {
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)
-    val over = value > target
+    val crossed = kind.crossed(value, target)
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        TargetRing(value, target, size = 36.dp, stroke = 5.dp, overColor = overColor)
+        TargetRing(value, target, size = 36.dp, stroke = 5.dp, kind = kind)
         Spacer(Modifier.width(8.dp))
         Column {
             Text(
                 "${Numbers.computed(value, locale)} / ${Numbers.kcal(target, locale)} $g",
                 style = MaterialTheme.typography.titleSmall,
-                color = if (over) overColor else Color.Unspecified,
+                color = if (crossed) crossedColor(kind) else Color.Unspecified,
             )
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }

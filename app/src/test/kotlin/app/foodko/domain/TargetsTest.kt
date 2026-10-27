@@ -1,6 +1,8 @@
 package app.foodko.domain
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TargetsTest {
@@ -18,5 +20,14 @@ class TargetsTest {
     fun `macro energy adds up to the kcal target`() {
         val t = macroTargetsFor(1850.0)
         assertEquals(1850.0, t.protein * 4 + t.carbs * 4 + t.fat * 9, 1e-9)
+    }
+
+    @Test
+    fun `a limit is crossed only above it, a goal already at it`() {
+        assertFalse(TargetKind.Limit.crossed(2000.0, 2000.0))
+        assertTrue(TargetKind.Limit.crossed(2000.1, 2000.0))
+        assertFalse(TargetKind.Goal.crossed(99.9, 100.0))
+        assertTrue(TargetKind.Goal.crossed(100.0, 100.0))
+        assertTrue(TargetKind.Goal.crossed(300.0, 100.0))
     }
 }

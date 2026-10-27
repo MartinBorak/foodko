@@ -23,13 +23,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.foodko.R
 import app.foodko.domain.Numbers
+import app.foodko.domain.TargetKind
 import app.foodko.domain.change
 import app.foodko.domain.macroTargetsFor
 import app.foodko.domain.toLocalDate
@@ -44,8 +44,6 @@ import app.foodko.ui.components.Stat
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.formatShortDate
 import app.foodko.ui.sessionViewModel
-import app.foodko.ui.theme.dangerColor
-import app.foodko.ui.theme.warningColor
 
 /** Bar chart of one macro's grams per day with its derived target line. */
 @Composable
@@ -54,7 +52,7 @@ private fun MacroDailyCard(
     values: List<Double>,
     target: Double?,
     state: StatsUiState,
-    overColor: Color = dangerColor(),
+    targetKind: TargetKind = TargetKind.Limit,
 ) {
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)
@@ -68,7 +66,7 @@ private fun MacroDailyCard(
                 target = target,
                 height = 140.dp,
                 formatValue = { "${Numbers.computed(it, locale)} $g" },
-                overColor = overColor,
+                targetKind = targetKind,
             )
         }
     }
@@ -158,8 +156,8 @@ fun StatsScreen(onSettings: () -> Unit) {
             val macroTargets = state.target?.takeIf { it > 0 }?.let { macroTargetsFor(it) }
             MacroDailyCard(stringResource(R.string.daily_carbs), state.daily.map { it.totals.carbs }, macroTargets?.carbs, state)
             MacroDailyCard(stringResource(R.string.daily_fat), state.daily.map { it.totals.fat }, macroTargets?.fat, state)
-            MacroDailyCard(stringResource(R.string.daily_protein), state.daily.map { it.totals.protein }, macroTargets?.protein, state, overColor = warningColor())
-            MacroDailyCard(stringResource(R.string.daily_fibre), state.daily.map { it.totals.fibre }, macroTargets?.fibre, state, overColor = warningColor())
+            MacroDailyCard(stringResource(R.string.daily_protein), state.daily.map { it.totals.protein }, macroTargets?.protein, state, targetKind = TargetKind.Goal)
+            MacroDailyCard(stringResource(R.string.daily_fibre), state.daily.map { it.totals.fibre }, macroTargets?.fibre, state, targetKind = TargetKind.Goal)
 
             StatsCard(stringResource(R.string.weight_trend)) {
                 if (state.weights.isEmpty()) {

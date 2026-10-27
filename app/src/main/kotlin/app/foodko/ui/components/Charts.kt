@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,12 +38,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.foodko.domain.MacroSplit
 import app.foodko.domain.Numbers
-import app.foodko.ui.theme.dangerColor
+import app.foodko.domain.TargetKind
+import app.foodko.ui.theme.crossedColor
+import app.foodko.ui.theme.progressColor
 import kotlin.math.max
 
 /**
  * Daily bars with an optional horizontal target line. [labels] are drawn under a few bars only,
- * so pass one per bar and let the chart thin them out.
+ * so pass one per bar and let the chart thin them out. Bars are blue until they cross the target,
+ * then red past a limit or green for a reached goal ([targetKind]).
  */
 @Composable
 fun BarChart(
@@ -54,9 +56,10 @@ fun BarChart(
     modifier: Modifier = Modifier,
     height: Dp = 180.dp,
     formatValue: (Double) -> String = { Numbers.kcal(it) },
-    overColor: Color = dangerColor(),
+    targetKind: TargetKind = TargetKind.Limit,
 ) {
-    val barColor = MaterialTheme.colorScheme.primary
+    val barColor = progressColor()
+    val crossedBarColor = crossedColor(targetKind)
     val selectedColor = MaterialTheme.colorScheme.tertiary
     val targetColor = MaterialTheme.colorScheme.onSurfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -95,7 +98,7 @@ fun BarChart(
             val x = i * slot + (slot - barWidth) / 2
             val color = when {
                 i == selected -> selectedColor
-                target != null && v > target -> overColor
+                target != null && targetKind.crossed(v, target) -> crossedBarColor
                 else -> barColor
             }
             drawRoundRect(

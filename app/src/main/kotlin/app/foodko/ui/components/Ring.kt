@@ -7,17 +7,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import app.foodko.ui.theme.dangerColor
-import app.foodko.ui.theme.successColor
+import app.foodko.domain.TargetKind
+import app.foodko.ui.theme.crossedColor
+import app.foodko.ui.theme.progressColor
 
 /**
- * How much of [target] the [value] covers, as a ring. Under the target: a green arc on a grey
- * track, the grey being what is left. Over the target: a full ring in [overColor], red by default.
+ * How much of [target] the [value] covers, as a ring. Before the target: a blue arc on a grey
+ * track, the grey being what is left. Once [crossed][TargetKind.crossed]: a full ring, red past a
+ * limit, green for a reached goal.
  */
 @Composable
 fun TargetRing(
@@ -26,11 +27,11 @@ fun TargetRing(
     modifier: Modifier = Modifier,
     size: Dp = 72.dp,
     stroke: Dp = 8.dp,
-    overColor: Color = dangerColor(),
+    kind: TargetKind = TargetKind.Limit,
 ) {
-    val over = value > target
-    val fraction = if (over) 1f else (value / target).toFloat().coerceIn(0f, 1f)
-    val progressColor = if (over) overColor else successColor()
+    val crossed = kind.crossed(value, target)
+    val fraction = if (crossed) 1f else (value / target).toFloat().coerceIn(0f, 1f)
+    val arcColor = if (crossed) crossedColor(kind) else progressColor()
     val trackColor = MaterialTheme.colorScheme.outlineVariant
 
     Canvas(modifier = modifier.size(size)) {
@@ -41,7 +42,7 @@ fun TargetRing(
         val topLeft = Offset(inset, inset)
         drawArc(trackColor, startAngle = -90f, sweepAngle = 360f, useCenter = false, topLeft = topLeft, size = arcSize, style = style)
         if (fraction > 0f) {
-            drawArc(progressColor, startAngle = -90f, sweepAngle = 360f * fraction, useCenter = false, topLeft = topLeft, size = arcSize, style = style)
+            drawArc(arcColor, startAngle = -90f, sweepAngle = 360f * fraction, useCenter = false, topLeft = topLeft, size = arcSize, style = style)
         }
     }
 }

@@ -149,12 +149,12 @@ Scenario: two users created "Skyr vanilkový" separately, with slightly differen
 | Merge duplicate foods, history rewritten automatically                                    | MVP          | Redirect + self-healing (decision 7, Flow 7).                           |
 | UI language switch: Slovak / English                                                      | MVP          | Stored in user settings, applied on launch. I'll draft the Slovak strings; you review them. |
 | Weight: add entry, history list, line chart over time                                     | MVP          |                                                                         |
-| Daily kcal target (optional, per user) shown as a line on charts and as "remaining today" | MVP          | One number in Settings. On Today: ring (green share eaten on a grey track, full red when over) + "eaten / target kcal" text, red when over. |
+| Daily kcal target (optional, per user) shown as a line on charts and as "remaining today" | MVP          | One number in Settings. On Today: ring (blue share eaten on a grey track, full red when over) + "eaten / target kcal" text, red when over. |
 | **Stats** — daily kcal bar chart over the selected range with target line                 | MVP          |                                                                         |
 | **Stats** — average daily kcal, protein, carbs, fat, fibre over the range                 | MVP          |                                                                         |
 | **Stats** — macro split (% of kcal from protein / carbs / fat) for the range              | MVP          |                                                                         |
 | **Stats** — weight chart with 7-day moving average and total change over range            | MVP          |                                                                         |
-| **Stats** — daily bar chart per macro (carbs, fat, protein, fibre) with derived target line | MVP          | Done. Under "Energy from macros"; over = red, amber for protein/fibre.  |
+| **Stats** — daily bar chart per macro (carbs, fat, protein, fibre) with derived target line | MVP          | Done. Under "Energy from macros"; bars blue, red over the target; protein/fibre green from the target up.  |
 | Sign out                                                                                  | MVP          |                                                                         |
 | Quick re-log: long-press a meal on Today → "Log again" (same food, same grams, timestamp now) | MVP      | Done.                                                                   |
 | Undo a merge                                                                              | Later        | Needs a merge log.                                                      |
@@ -218,7 +218,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | Screen                           | What's on it / what you can do there                                                                                                                                                                     |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Sign in**                      | Logo, one Google sign-in button, error text if not allowlisted.                                                                                                                                          |
-| **Today** (tab)                  | Date header with ← → and calendar picker. Totals card: ring showing eaten kcal as a share of the target (green on grey; full red when over), "eaten / target kcal" and remaining/over text next to it (red when over), then a 2×2 grid of the same for carbs, fat / protein, fibre against targets derived from the kcal target (decision 9; over = amber for protein and fibre). Without a target: eaten kcal and plain macro grams. Meal list for that day (time, food label, grams, kcal), tap to edit. FAB **+ Meal**. |
+| **Today** (tab)                  | Date header with ← → and calendar picker. Totals card: ring showing eaten kcal as a share of the target (blue on grey; full red when over), "eaten / target kcal" and remaining/over text next to it (red when over), then a 2×2 grid of the same for carbs, fat / protein, fibre against targets derived from the kcal target (decision 9; protein and fibre turn green once reached). Without a target: eaten kcal and plain macro grams. Meal list for that day (time, food label, grams, kcal), tap to edit. FAB **+ Meal**. |
 | **Food picker**                  | Search field (auto-focused), "Recent" section, then filtered full list. "Create new food" row.                                                                                                           |
 | **Meal form**                    | Selected food (tap to change), grams field, date/time field, live nutrition preview; Save (top bar, so the keyboard never hides it), Delete (when editing).                                                                                        |
 | **Foods** (tab)                  | Searchable list of all foods with kcal/100g. Tap to edit. Long-press to multi-select → **Merge**. Filter toggle to show archived foods. **+ Food**.                                                         |
@@ -292,8 +292,10 @@ Kept for the record; nothing is open right now.
 9. **Macro targets:** computed from the kcal target with fixed energy shares (business rules), not
    entered per user. The reference ranges for the share of energy from each macro are the same
    for adults regardless of sex; what differs between people is the calorie budget, which the
-   per-user kcal target already captures. "Over" is red for kcal, carbs and fat; amber for
-   protein and fibre, where exceeding the target is rarely a problem.
+   per-user kcal target already captures. Colours: blue while short of the target. Kcal, carbs
+   and fat are limits: red once over. Protein and fibre are goals: green from the target up,
+   with no upper cap (neither has an official upper limit; too much shows up as extra kcal,
+   which the kcal limit already catches).
 10. **Testing and CI:** the automated checks are JVM unit tests (domain + ViewModels on in-memory
     repository fakes with a fixed clock), Firestore rules tests on the emulator, and Android lint,
     run by GitHub Actions on every push and pull request. No Compose UI or instrumented tests:
