@@ -74,6 +74,52 @@ class FoodFormViewModelTest {
     }
 
     @Test
+    fun `a duplicate label blocks saving, the food's own label does not`() = runTest {
+        val vm = FoodFormViewModel(world.session, foodId = null, prefillLabel = "skyr vanilkovy")
+        vm.fields.kcal = "60"
+        assertTrue(vm.fields.isValid)
+        assertFalse(vm.canSave(index))
+        vm.save { throw AssertionError("must not save a duplicate") }
+        assertEquals(5, world.foods.state.value.size)
+
+        vm.fields.label = "Gone"
+        assertTrue("an archived food's label may be reused", vm.canSave(index))
+
+        val editing = FoodFormViewModel(world.session, foodId = "skyr", prefillLabel = "")
+        assertTrue(editing.canSave(index))
+        editing.fields.label = "rice, DRY"
+        assertFalse("renaming onto another food is blocked too", editing.canSave(index))
+    }
+
+    @Test
+    fun `a new food suggests matching live foods from two characters`() = runTest {
+        val vm = FoodFormViewModel(world.session, foodId = null, prefillLabel = "s")
+        assertEquals(emptyList<Food>(), vm.suggestions(index))
+        vm.fields.label = "st"
+        assertEquals(listOf("stock"), vm.suggestions(index).map { it.id })
+        vm.fields.label = "VANILK sky"
+        assertEquals("every word, any order, no diacritics", listOf("skyr"), vm.suggestions(index).map { it.id })
+        vm.fields.label = "gone"
+        assertEquals("archived foods are not suggested", emptyList<Food>(), vm.suggestions(index))
+
+        val editing = FoodFormViewModel(world.session, foodId = "skyr", prefillLabel = "")
+        assertEquals("nothing is suggested while editing", emptyList<Food>(), editing.suggestions(index))
+    }
+
+    @Test
+    fun `suggestions put the exact match first and stop at five`() = runTest {
+        val rices = listOf("Brown rice", "Rice", "Rice noodles", "Basmati rice", "Wild rice", "Jasmine rice")
+        val many = TestWorld(main.dispatcher, foods = rices.mapIndexed { i, label -> food("r$i", label) })
+        try {
+            val vm = FoodFormViewModel(many.session, foodId = null, prefillLabel = "rice")
+            val labels = vm.suggestions(many.session.foodIndex.value!!).map { it.label }
+            assertEquals(listOf("Rice", "Basmati rice", "Brown rice", "Jasmine rice", "Rice noodles"), labels)
+        } finally {
+            many.session.close()
+        }
+    }
+
+    @Test
     fun `editing loads the values as text and keeps bookkeeping on save`() = runTest {
         val vm = FoodFormViewModel(world.session, foodId = "skyr", prefillLabel = "")
         assertTrue(vm.isEditing)

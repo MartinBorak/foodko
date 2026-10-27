@@ -65,11 +65,12 @@ Any number of allowlisted users (a household). All are equal; there is no admin 
 
 1. From **Foods** tab (**+ Food**) or from the food picker ("Create new food").
 2. Form: **Label** (required, text), **kcal per 100 g** (required, float), **Carbs**, **Fat**, **Protein**, **Fibre** (optional floats, grams per 100 g), **Note** (optional free text: brand, shop, how it was cooked; shown under the label in the Foods list and the picker).
+   While the label is typed (from 2 characters), up to 5 existing foods matching it are listed right under the field, with the same search as the picker, exact match first, archived foods left out. Tapping one opens it in the edit form on top of the new one (back returns with the typed label kept); when the form was opened from a food picker, tapping one uses it for the meal or ingredient instead.
 3. Save → food is in the shared database, visible to both users immediately.
 
 **Edge cases:**
 
-- Label already exists (case-insensitive) → warn, allow saving anyway (e.g. two brands of yoghurt), but show the existing one.
+- Label already exists (ignoring case and diacritics) among live foods → error, Save disabled. Labels are unique, so two brands of yoghurt need the brand in the label. Archived foods don't count. Applies to renaming too. Only checked in the app: two phones adding the same food offline can still create a pair, which Flow 7 merges.
 - Negative numbers → rejected. Macros summing to more than 100 g → warning, not blocked.
 
 ### Flow 3a: Work out a cooked dish's values from its ingredients

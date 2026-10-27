@@ -198,16 +198,20 @@ private fun MainNavigation() {
             ) { entry ->
                 val args = entry.arguments
                 val pick = args?.getBoolean("pick") ?: false
+                // Opened from a food picker: hand the chosen food back to the screen that asked for it.
+                val returnPicked = { id: String ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(Routes.PICKED_FOOD_ID, id)
+                    navController.popBackStack()
+                }
                 FoodFormScreen(
                     foodId = args?.getString("foodId")?.ifEmpty { null },
                     prefillLabel = args?.getString("label").orEmpty(),
+                    pickExisting = pick,
                     pickedFoodId = entry.savedStateHandle.getStateFlow<String?>(Routes.PICKED_FOOD_ID, null),
                     onConsumePickedFood = { entry.savedStateHandle[Routes.PICKED_FOOD_ID] = null },
                     onCreateFood = { label -> navController.navigate(Routes.food(pick = true, label = label)) },
-                    onSaved = { id ->
-                        if (pick) navController.previousBackStackEntry?.savedStateHandle?.set(Routes.PICKED_FOOD_ID, id)
-                        navController.popBackStack()
-                    },
+                    onOpenExisting = { id -> if (pick) returnPicked(id) else navController.navigate(Routes.food(foodId = id)) },
+                    onSaved = { id -> if (pick) returnPicked(id) else navController.popBackStack() },
                     onBack = { navController.popBackStack() },
                 )
             }

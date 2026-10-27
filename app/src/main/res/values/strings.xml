@@ -99,7 +99,9 @@
     <string name="kcal_per_100g">kcal per 100 g</string>
     <string name="per_100g_optional">Per 100 g (optional)</string>
     <string name="food_note">Note (optional)</string>
-    <string name="duplicate_label_warning">“%1$s” already exists. Save anyway or pick it instead.</string>
+    <string name="duplicate_label_error">“%1$s” already exists. Food names must be unique.</string>
+    <string name="existing_foods_open">Already in the database, tap to open</string>
+    <string name="existing_foods_pick">Already in the database, tap to use</string>
     <string name="macros_exceed_warning">Macros add up to more than 100 g per 100 g.</string>
     <string name="archive">Archive</string>
     <string name="unarchive">Restore</string>

@@ -3,6 +3,7 @@ package app.foodko.ui.foods
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +57,7 @@ import app.foodko.ui.components.LoadingBox
 import app.foodko.ui.components.MacroRow
 import app.foodko.ui.components.currentLocale
 import app.foodko.ui.components.NumberField
+import app.foodko.ui.meal.FoodPickRow
 import app.foodko.ui.meal.FoodPicker
 import app.foodko.ui.sessionViewModel
 import kotlinx.coroutines.flow.StateFlow
@@ -63,9 +67,11 @@ import kotlinx.coroutines.flow.StateFlow
 fun FoodFormScreen(
     foodId: String?,
     prefillLabel: String,
+    pickExisting: Boolean,
     pickedFoodId: StateFlow<String?>,
     onConsumePickedFood: () -> Unit,
     onCreateFood: (String) -> Unit,
+    onOpenExisting: (String) -> Unit,
     onSaved: (String) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -102,7 +108,7 @@ fun FoodFormScreen(
                 actions = {
                     // In the top bar so the keyboard never covers it.
                     if (vm.mode == FormMode.FORM && !vm.loading) {
-                        TextButton(onClick = { vm.save(onSaved) }, enabled = vm.fields.isValid && !vm.saving) {
+                        TextButton(onClick = { vm.save(onSaved) }, enabled = index?.let(vm::canSave) == true) {
                             Text(stringResource(R.string.save))
                         }
                     }
@@ -131,7 +137,9 @@ fun FoodFormScreen(
         if (vm.mode != FormMode.FORM) return@Scaffold
 
         Column(modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
-            FoodFieldsEditor(vm.fields, duplicate = vm.duplicateOf(currentIndex), autoFocusLabel = !vm.isEditing)
+            FoodFieldsEditor(vm.fields, duplicate = vm.duplicateOf(currentIndex), autoFocusLabel = !vm.isEditing) {
+                ExistingFoods(vm.suggestions(currentIndex), pickExisting, onOpenExisting)
+            }
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = vm::startIngredients) { Text(stringResource(R.string.calculate_from_ingredients)) }
             val existing = vm.existing
@@ -251,9 +259,41 @@ private fun IngredientCalculator(vm: FoodFormViewModel, index: FoodIndex, modifi
     }
 }
 
-/** The six food fields with validation hints. Reused by the merge screen. */
+/**
+ * Existing foods matching the label of a new food (spec Flow 3), so it isn't added twice. A tap
+ * opens the food, or uses it right away when the form was opened from a food picker ([pick]).
+ */
 @Composable
-fun FoodFieldsEditor(fields: FoodFields, duplicate: Food?, autoFocusLabel: Boolean, modifier: Modifier = Modifier) {
+private fun ExistingFoods(foods: List<Food>, pick: Boolean, onOpen: (String) -> Unit) {
+    if (foods.isEmpty()) return
+    val locale = currentLocale()
+    val perHundred = stringResource(R.string.kcal_per_100g_short)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+    ) {
+        Text(
+            stringResource(if (pick) R.string.existing_foods_pick else R.string.existing_foods_open),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),
+        )
+        foods.forEach { food -> FoodPickRow(food, perHundred, locale, transparent = true) { onOpen(food.id) } }
+    }
+}
+
+/**
+ * The six food fields with validation hints. Reused by the merge screen. [belowLabel] goes
+ * right under the label field.
+ */
+@Composable
+fun FoodFieldsEditor(
+    fields: FoodFields,
+    duplicate: Food?,
+    autoFocusLabel: Boolean,
+    modifier: Modifier = Modifier,
+    belowLabel: @Composable ColumnScope.() -> Unit = {},
+) {
     val labelFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { if (autoFocusLabel) labelFocus.requestFocus() }
     val g = stringResource(R.string.grams_unit)
@@ -265,12 +305,13 @@ fun FoodFieldsEditor(fields: FoodFields, duplicate: Food?, autoFocusLabel: Boole
             onValueChange = { fields.label = it },
             label = { Text(stringResource(R.string.food_label)) },
             singleLine = true,
-            isError = !fields.labelValid && fields.label.isNotEmpty(),
-            supportingText = duplicate?.let { { Text(stringResource(R.string.duplicate_label_warning, it.label)) } },
+            isError = (!fields.labelValid && fields.label.isNotEmpty()) || duplicate != null,
+            supportingText = duplicate?.let { { Text(stringResource(R.string.duplicate_label_error, it.label)) } },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth().focusRequester(labelFocus),
         )
         Spacer(Modifier.height(8.dp))
+        belowLabel()
         NumberField(
             value = fields.kcal,
             onValueChange = { fields.kcal = it },
