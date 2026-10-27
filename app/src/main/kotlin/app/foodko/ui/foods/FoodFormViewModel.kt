@@ -116,23 +116,26 @@ class FoodFormViewModel(private val session: UserSession, private val foodId: St
 
     /**
      * Another live food with the same label, ignoring case and diacritics. Labels are unique, so
-     * this blocks saving (spec Flow 3). Archived foods don't count.
+     * this blocks saving (spec Flow 3). Archived foods don't count. None while saving: the local
+     * cache shows a new food before the server confirms it, and it would match itself.
      */
     fun duplicateOf(index: FoodIndex): Food? {
         val key = normalizeForSearch(fields.label)
-        if (key.isEmpty()) return null
+        if (key.isEmpty() || saving) return null
         return index.visible.firstOrNull { it.labelLower == key && it.id != foodId }
     }
 
     /**
      * Existing foods matching the label typed for a new food, so it isn't added twice (spec
-     * Flow 3). Same search as the food picker; from two characters, exact match first.
+     * Flow 3). Same search as the food picker; from two characters, exact match first. While
+     * saving, an exact match is the food being saved (see [duplicateOf]), so it is left out.
      */
     fun suggestions(index: FoodIndex): List<Food> {
         if (isEditing) return emptyList()
         val key = normalizeForSearch(fields.label)
         if (key.length < 2) return emptyList()
-        return index.search(key).sortedBy { it.labelLower != key }.take(MAX_SUGGESTIONS)
+        return index.search(key).filterNot { saving && it.labelLower == key }
+            .sortedBy { it.labelLower != key }.take(MAX_SUGGESTIONS)
     }
 
     fun canSave(index: FoodIndex): Boolean = fields.isValid && duplicateOf(index) == null && !saving

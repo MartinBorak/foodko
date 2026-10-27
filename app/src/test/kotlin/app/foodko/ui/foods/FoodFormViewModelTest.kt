@@ -92,6 +92,18 @@ class FoodFormViewModelTest {
     }
 
     @Test
+    fun `a new food does not show up as its own duplicate while the screen is still open`() = runTest {
+        val vm = FoodFormViewModel(world.session, foodId = null, prefillLabel = "Skyr")
+        vm.fields.kcal = "60"
+        var savedId: String? = null
+        vm.save { savedId = it }
+
+        assertEquals("Skyr", world.foods.byId(savedId!!).label)
+        assertNull(vm.duplicateOf(index))
+        assertEquals(listOf("skyr"), vm.suggestions(index).map { it.id })
+    }
+
+    @Test
     fun `a new food suggests matching live foods from two characters`() = runTest {
         val vm = FoodFormViewModel(world.session, foodId = null, prefillLabel = "s")
         assertEquals(emptyList<Food>(), vm.suggestions(index))
