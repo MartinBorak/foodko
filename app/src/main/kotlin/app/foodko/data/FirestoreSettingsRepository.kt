@@ -6,7 +6,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
 
 /** [SettingsRepository] on Cloud Firestore. */
 class FirestoreSettingsRepository(db: FirebaseFirestore, uid: String) : SettingsRepository {
@@ -18,8 +17,8 @@ class FirestoreSettingsRepository(db: FirebaseFirestore, uid: String) : Settings
         snap?.toObject(UserSettings::class.java) ?: UserSettings()
     }
 
-    suspend fun update(fields: Map<String, Any?>) {
-        document.set(fields, SetOptions.merge()).await()
+    fun update(fields: Map<String, Any?>) {
+        document.set(fields, SetOptions.merge())
     }
 
     override suspend fun setDisplayName(name: String?) = update(mapOf("displayName" to name?.trim()?.ifEmpty { null }))

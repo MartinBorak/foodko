@@ -118,7 +118,8 @@ per signed-in user; ViewModels take the session (`sessionViewModel { TodayViewMo
   `WeightRepository`, `SettingsRepository`, `FoodMerger`). `data/Firestore*Repository.kt` implement
   them as thin Firestore wrappers exposing `Flow`s via snapshot listeners; the merge batch lives
   in `FirestoreFoodRepository.merge`. Firestore persistent cache is on, so writes work offline and
-  the UI never waits for the network. A `PERMISSION_DENIED` listener error surfaces as
+  the UI never waits for the network: writes are fire-and-forget, never `.await()`ed (a write's
+  task only completes when the server confirms it). A `PERMISSION_DENIED` listener error surfaces as
   `AccessDeniedException` (`data/Firestore.kt`); nothing outside `data/` sees SDK exception types.
 - `UserSession` (`AppContainer.kt`) — one shared `StateFlow` per collection, the `RedirectHealer`,
   and `mergeFoods`. Its constructor takes the interfaces, a `CoroutineScope` and a flag for demo

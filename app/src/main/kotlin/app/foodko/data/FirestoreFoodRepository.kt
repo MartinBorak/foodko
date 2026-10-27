@@ -5,7 +5,6 @@ import app.foodko.domain.normalizeForSearch
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.tasks.await
 
 /** [FoodRepository] on Cloud Firestore. Also performs the merge batch, which spans collections. */
 class FirestoreFoodRepository(private val db: FirebaseFirestore) : FoodRepository {
@@ -23,12 +22,12 @@ class FirestoreFoodRepository(private val db: FirebaseFirestore) : FoodRepositor
             createdBy = food.createdBy.ifEmpty { uid },
             updatedAt = null, // @ServerTimestamp fills it in
         )
-        doc.set(prepared).await()
+        doc.set(prepared)
         return doc.id
     }
 
     override suspend fun setArchived(id: String, archived: Boolean) {
-        collection.document(id).update(mapOf("archived" to archived, "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp())).await()
+        collection.document(id).update(mapOf("archived" to archived, "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()))
     }
 
     /**
@@ -76,7 +75,7 @@ class FirestoreFoodRepository(private val db: FirebaseFirestore) : FoodRepositor
         batch.set(settings.document, mapOf("lastUsedFoodIds" to newRecent), com.google.firebase.firestore.SetOptions.merge())
         val headroom = BATCH_LIMIT - (2 + losers.size)
         mealDocs.take(headroom).forEach { ref -> batch.update(ref, "foodId", survivor.id) }
-        batch.commit().await()
+        batch.commit()
 
         // Rare overflow (>~495 meals of one food): the rest is picked up by the healer, but do it now.
         if (mealDocs.size > headroom) {

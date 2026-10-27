@@ -53,6 +53,13 @@ fun DocumentReference.snapshots(): Flow<DocumentSnapshot?> = callbackFlow {
     awaitClose { registration.remove() }
 }
 
+/*
+ * Writes (set, update, delete, batch commit) are never awaited. The local cache and every
+ * listener have a write at once and the SDK sends it when online; awaiting would wait for the
+ * server, so offline the UI would hang until reconnected (spec: offline saving behaves the same).
+ * A write the rules reject is rolled back in the cache. Reads before a write may still await.
+ */
+
 /** Firestore limits for batching. */
 const val WHERE_IN_LIMIT = 30
 const val BATCH_LIMIT = 500

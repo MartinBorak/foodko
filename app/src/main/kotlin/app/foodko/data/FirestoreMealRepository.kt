@@ -17,12 +17,12 @@ class FirestoreMealRepository(private val db: FirebaseFirestore, uid: String) : 
 
     override suspend fun save(meal: MealEntry): String {
         val doc = if (meal.id.isEmpty()) collection.document() else collection.document(meal.id)
-        doc.set(meal.copy(id = doc.id, updatedAt = null)).await()
+        doc.set(meal.copy(id = doc.id, updatedAt = null))
         return doc.id
     }
 
     override suspend fun delete(id: String) {
-        collection.document(id).delete().await()
+        collection.document(id).delete()
     }
 
     /** References of this user's meals pointing at any of [foodIds]. */
@@ -31,11 +31,11 @@ class FirestoreMealRepository(private val db: FirebaseFirestore, uid: String) : 
             collection.whereIn("foodId", chunk).get().await().documents.map { it.reference }
         }
 
-    suspend fun repoint(refs: List<DocumentReference>, newFoodId: String) {
+    fun repoint(refs: List<DocumentReference>, newFoodId: String) {
         refs.chunked(BATCH_LIMIT).forEach { chunk ->
             val batch = db.batch()
             chunk.forEach { batch.update(it, "foodId", newFoodId) }
-            batch.commit().await()
+            batch.commit()
         }
     }
 
@@ -44,7 +44,7 @@ class FirestoreMealRepository(private val db: FirebaseFirestore, uid: String) : 
         updates.chunked(BATCH_LIMIT).forEach { chunk ->
             val batch = db.batch()
             chunk.forEach { (id, foodId) -> batch.update(collection.document(id), "foodId", foodId) }
-            batch.commit().await()
+            batch.commit()
         }
     }
 }
