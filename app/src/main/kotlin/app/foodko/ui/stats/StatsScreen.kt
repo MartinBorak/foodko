@@ -148,14 +148,14 @@ fun StatsScreen(onSettings: () -> Unit) {
                 if (split == null) {
                     EmptyText(stringResource(R.string.no_data_yet))
                 } else {
-                    MacroSplitBar(split, stringResource(R.string.protein), stringResource(R.string.carbs), stringResource(R.string.fat))
+                    MacroSplitBar(split, stringResource(R.string.fat), stringResource(R.string.carbs), stringResource(R.string.protein))
                 }
             }
 
             // Daily intake per macro, same order as the Today grid; targets derived from the kcal target.
             val macroTargets = state.target?.takeIf { it > 0 }?.let { macroTargetsFor(it) }
-            MacroDailyCard(stringResource(R.string.daily_carbs), state.daily.map { it.totals.carbs }, macroTargets?.carbs, state)
             MacroDailyCard(stringResource(R.string.daily_fat), state.daily.map { it.totals.fat }, macroTargets?.fat, state)
+            MacroDailyCard(stringResource(R.string.daily_carbs), state.daily.map { it.totals.carbs }, macroTargets?.carbs, state)
             MacroDailyCard(stringResource(R.string.daily_protein), state.daily.map { it.totals.protein }, macroTargets?.protein, state, targetKind = TargetKind.Goal)
             MacroDailyCard(stringResource(R.string.daily_fibre), state.daily.map { it.totals.fibre }, macroTargets?.fibre, state, targetKind = TargetKind.Goal)
 

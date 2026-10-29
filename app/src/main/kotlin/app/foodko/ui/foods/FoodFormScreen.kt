@@ -250,7 +250,7 @@ private fun IngredientCalculator(vm: FoodFormViewModel, index: FoodIndex, modifi
             Spacer(Modifier.height(8.dp))
             Text("${Numbers.kcal(result.kcal, locale)} ${stringResource(R.string.kcal_unit)}", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
-            MacroRow(result.protein, result.carbs, result.fat, result.fibre)
+            MacroRow(result.fat, result.carbs, result.protein, result.fibre)
             Spacer(Modifier.height(24.dp))
         }
         Button(onClick = { vm.useComposed(index) }, enabled = result != null, modifier = Modifier.fillMaxWidth()) {
@@ -325,12 +325,12 @@ fun FoodFieldsEditor(
         Text(stringResource(R.string.per_100g_optional), style = MaterialTheme.typography.labelLarge)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(fields.protein, { fields.protein = it }, stringResource(R.string.protein), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.protein))
+            NumberField(fields.fat, { fields.fat = it }, stringResource(R.string.fat), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fat))
             NumberField(fields.carbs, { fields.carbs = it }, stringResource(R.string.carbs), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.carbs))
         }
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(fields.fat, { fields.fat = it }, stringResource(R.string.fat), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fat))
+            NumberField(fields.protein, { fields.protein = it }, stringResource(R.string.protein), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.protein))
             NumberField(fields.fibre, { fields.fibre = it }, stringResource(R.string.fibre), Modifier.weight(1f), suffix = g, isError = !fields.optionalValid(fields.fibre))
         }
         Spacer(Modifier.height(16.dp))

@@ -183,13 +183,13 @@ private fun FoodRow(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val p = stringResource(R.string.protein_short)
-    val c = stringResource(R.string.carbs_short)
     val f = stringResource(R.string.fat_short)
+    val c = stringResource(R.string.carbs_short)
+    val p = stringResource(R.string.protein_short)
     val macros = listOfNotNull(
-        food.proteinPer100g?.let { "$p ${Numbers.entered(it, locale)}" },
-        food.carbsPer100g?.let { "$c ${Numbers.entered(it, locale)}" },
         food.fatPer100g?.let { "$f ${Numbers.entered(it, locale)}" },
+        food.carbsPer100g?.let { "$c ${Numbers.entered(it, locale)}" },
+        food.proteinPer100g?.let { "$p ${Numbers.entered(it, locale)}" },
     ).joinToString(" · ")
     ListItem(
         modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),

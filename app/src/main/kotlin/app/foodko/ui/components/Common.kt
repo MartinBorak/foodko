@@ -75,22 +75,22 @@ fun Stat(
     }
 }
 
-/** Protein / carbs / fat / fibre row in grams. */
+/** Fat / carbs / protein / fibre row in grams. */
 @Composable
-fun MacroRow(protein: Double?, carbs: Double?, fat: Double?, fibre: Double?, modifier: Modifier = Modifier) {
+fun MacroRow(fat: Double?, carbs: Double?, protein: Double?, fibre: Double?, modifier: Modifier = Modifier) {
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)
     fun fmt(v: Double?) = if (v == null) "–" else Numbers.computed(v, locale) + " " + g
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Stat(stringResource(R.string.protein), fmt(protein))
-        Stat(stringResource(R.string.carbs), fmt(carbs))
         Stat(stringResource(R.string.fat), fmt(fat))
+        Stat(stringResource(R.string.carbs), fmt(carbs))
+        Stat(stringResource(R.string.protein), fmt(protein))
         Stat(stringResource(R.string.fibre), fmt(fibre))
     }
 }
 
 @Composable
-fun MacroRow(n: Nutrition, modifier: Modifier = Modifier) = MacroRow(n.protein, n.carbs, n.fat, n.fibre, modifier)
+fun MacroRow(n: Nutrition, modifier: Modifier = Modifier) = MacroRow(n.fat, n.carbs, n.protein, n.fibre, modifier)
 
 @Composable
-fun MacroRow(t: Totals, modifier: Modifier = Modifier) = MacroRow(t.protein, t.carbs, t.fat, t.fibre, modifier)
+fun MacroRow(t: Totals, modifier: Modifier = Modifier) = MacroRow(t.fat, t.carbs, t.protein, t.fibre, modifier)
