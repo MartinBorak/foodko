@@ -294,8 +294,8 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
             if (target != null && target > 0) {
                 val t = macroTargetsFor(target)
                 Row(Modifier.fillMaxWidth()) {
-                    MacroTargetCell(stringResource(R.string.carbs), totals.carbs, t.carbs, Modifier.weight(1f))
                     MacroTargetCell(stringResource(R.string.fat), totals.fat, t.fat, Modifier.weight(1f))
+                    MacroTargetCell(stringResource(R.string.carbs), totals.carbs, t.carbs, Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth()) {
@@ -319,7 +319,7 @@ private fun TotalsCard(totals: Totals, target: Double?, modifier: Modifier = Mod
 
 /**
  * One macro against its derived daily target: small ring, "eaten / target g", label.
- * Its text turns red past a limit (carbs, fat) and green once a goal (protein, fibre) is reached.
+ * Its text turns red past a limit (fat, carbs) and green once a goal (protein, fibre) is reached.
  */
 @Composable
 private fun MacroTargetCell(

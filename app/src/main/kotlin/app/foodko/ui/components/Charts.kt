@@ -219,16 +219,11 @@ fun LineChart(
 
 /** Stacked horizontal bar of energy share with a legend. */
 @Composable
-fun MacroSplitBar(split: MacroSplit, proteinLabel: String, carbsLabel: String, fatLabel: String, modifier: Modifier = Modifier) {
-    val colors = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.secondary,
-    )
+fun MacroSplitBar(split: MacroSplit, fatLabel: String, carbsLabel: String, proteinLabel: String, modifier: Modifier = Modifier) {
     val parts = listOf(
-        Triple(proteinLabel, split.proteinPct, colors[0]),
-        Triple(carbsLabel, split.carbsPct, colors[1]),
-        Triple(fatLabel, split.fatPct, colors[2]),
+        Triple(fatLabel, split.fatPct, MaterialTheme.colorScheme.secondary),
+        Triple(carbsLabel, split.carbsPct, MaterialTheme.colorScheme.tertiary),
+        Triple(proteinLabel, split.proteinPct, MaterialTheme.colorScheme.primary),
     )
     val locale = currentLocale()
     Column(modifier = modifier.fillMaxWidth()) {
