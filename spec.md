@@ -204,6 +204,7 @@ Stored in Firestore. `uid` is the Firebase Auth user id.
 
 - Nutrition of a meal = food value per 100 g × grams / 100, computed at display time (not stored). Null macro on the food → that macro is shown as "–" for the meal; in daily totals and averages it counts as 0 and the day/period carries a visible "incomplete" marker.
 - Averages in Stats are per *logged* day (days with at least one meal). Days with nothing logged are far more likely unlogged than fasted.
+- **Today is not a completed day in Stats.** It is rarely final, so the range (7 / 30 / 90 / all) counts completed days ending yesterday, and averages and the macro split use only those. The daily bar charts show today as an extra, faded bar after them. Weight is unaffected: a weigh-in is final when entered, so today's counts.
 - A "day" is local-time midnight to midnight on the phone.
 - **Numbers:** every numeric field (grams, kg, kcal, macros) accepts integers and decimals and is stored as a float. Display rule everywhere: a whole number is shown without a decimal part; otherwise trailing zeros are trimmed, max 1 decimal for computed macro grams (meal nutrition, totals, averages) and max 2 decimals for values as entered (food values, weight). Calories are always shown as whole numbers.
 - Daily kcal target applies to every day; no per-weekday variation.
@@ -227,7 +228,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | **Ingredients** (in Food form)   | Ingredient rows (food, grams, remove), Add ingredient (→ Food picker), weight of the finished dish, live per-100 g result, Use these values.                                                             |
 | **Merge screen**                 | Selected foods side by side with a survivor radio button; Food form prefilled from the survivor; Save.                                                                                                   |
 | **Weight** (tab)                 | Latest weight and change since first entry. Line chart (range selector). Inline "add weight" row. History list, tap to edit.                                                                             |
-| **Stats** (tab)                  | Range selector (7 / 30 / 90 / all). Daily kcal bar chart with target line. Averages card. Macro split chart. Four daily bar charts, one per macro (fat, carbs, protein, fibre), with derived target lines. Weight chart with moving average.                                                           |
+| **Stats** (tab)                  | Range selector (7 / 30 / 90 / all completed days; today is shown apart, see business rules). Daily kcal bar chart with target line, today as a faded last bar. Averages card. Macro split chart. Four daily bar charts, one per macro (fat, carbs, protein, fibre), with derived target lines. Weight chart with moving average.                                                           |
 | **Settings** (from top-bar menu) | Display name, language, daily kcal target, signed-in account, Sign out.                                                                                                                                  |
 
 

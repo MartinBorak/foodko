@@ -57,16 +57,17 @@ private fun MacroDailyCard(
     val locale = currentLocale()
     val g = stringResource(R.string.grams_unit)
     StatsCard(title) {
-        if (state.loggedDays == 0) {
+        if (!state.hasChartData) {
             EmptyText(stringResource(R.string.no_data_yet))
         } else {
             BarChart(
                 values = values,
-                labels = state.daily.map { formatShortDate(it.date, locale) },
+                labels = state.chartDays.map { formatShortDate(it.date, locale) },
                 target = target,
                 height = 140.dp,
                 formatValue = { "${Numbers.computed(it, locale)} $g" },
                 targetKind = targetKind,
+                partialLast = true,
             )
         }
     }
@@ -104,14 +105,15 @@ fun StatsScreen(onSettings: () -> Unit) {
             RangeSelector(state.range, vm::setRange)
 
             StatsCard(stringResource(R.string.daily_kcal)) {
-                if (state.loggedDays == 0) {
+                if (!state.hasChartData) {
                     EmptyText(stringResource(R.string.no_data_yet))
                 } else {
                     BarChart(
-                        values = state.daily.map { it.totals.kcal },
-                        labels = state.daily.map { formatShortDate(it.date, locale) },
+                        values = state.chartDays.map { it.totals.kcal },
+                        labels = state.chartDays.map { formatShortDate(it.date, locale) },
                         target = state.target,
                         formatValue = { "${Numbers.kcal(it, locale)} $kcal" },
+                        partialLast = true,
                     )
                     Text(
                         stringResource(R.string.tap_bar_hint),
@@ -141,6 +143,13 @@ fun StatsScreen(onSettings: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                if ((state.today?.mealCount ?: 0) > 0) {
+                    Text(
+                        stringResource(R.string.today_not_counted),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             StatsCard(stringResource(R.string.macro_split)) {
@@ -154,10 +163,10 @@ fun StatsScreen(onSettings: () -> Unit) {
 
             // Daily intake per macro, same order as the Today grid; targets derived from the kcal target.
             val macroTargets = state.target?.takeIf { it > 0 }?.let { macroTargetsFor(it) }
-            MacroDailyCard(stringResource(R.string.daily_fat), state.daily.map { it.totals.fat }, macroTargets?.fat, state)
-            MacroDailyCard(stringResource(R.string.daily_carbs), state.daily.map { it.totals.carbs }, macroTargets?.carbs, state)
-            MacroDailyCard(stringResource(R.string.daily_protein), state.daily.map { it.totals.protein }, macroTargets?.protein, state, targetKind = TargetKind.Goal)
-            MacroDailyCard(stringResource(R.string.daily_fibre), state.daily.map { it.totals.fibre }, macroTargets?.fibre, state, targetKind = TargetKind.Goal)
+            MacroDailyCard(stringResource(R.string.daily_fat), state.chartDays.map { it.totals.fat }, macroTargets?.fat, state)
+            MacroDailyCard(stringResource(R.string.daily_carbs), state.chartDays.map { it.totals.carbs }, macroTargets?.carbs, state)
+            MacroDailyCard(stringResource(R.string.daily_protein), state.chartDays.map { it.totals.protein }, macroTargets?.protein, state, targetKind = TargetKind.Goal)
+            MacroDailyCard(stringResource(R.string.daily_fibre), state.chartDays.map { it.totals.fibre }, macroTargets?.fibre, state, targetKind = TargetKind.Goal)
 
             StatsCard(stringResource(R.string.weight_trend)) {
                 if (state.weights.isEmpty()) {

@@ -159,8 +159,9 @@
 
     <!-- Štatistiky -->
     <string name="daily_kcal">Denné kalórie</string>
-    <string name="tap_bar_hint">Ťukni na stĺpec pre presnú hodnotu.</string>
+    <string name="tap_bar_hint">Ťukni na stĺpec pre presnú hodnotu. Bledý stĺpec je dnešok, zatiaľ neukončený.</string>
     <string name="average_per_logged_day">Priemer na zapísaný deň</string>
+    <string name="today_not_counted">Dnešok sa započíta, až keď skončí.</string>
     <string name="vs_target">oproti cieľu</string>
     <string name="macro_split">Energia zo živín</string>
     <string name="daily_carbs">Denné sacharidy</string>

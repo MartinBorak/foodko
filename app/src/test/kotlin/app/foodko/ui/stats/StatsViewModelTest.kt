@@ -56,19 +56,23 @@ class StatsViewModelTest {
     private fun kotlinx.coroutines.test.TestScope.subscribe() = backgroundScope.launch(main.dispatcher) { vm.uiState.collect() }
 
     @Test
-    fun `the week view covers the last seven days ending today`() = runTest {
+    fun `the week view covers the last seven completed days, today kept apart`() = runTest {
         subscribe()
         val s = vm.uiState.value
         assertFalse(s.loading)
         assertEquals(StatsRange.WEEK, s.range)
         assertEquals(7, s.daily.size)
-        assertEquals(TODAY.minusDays(6), s.daily.first().date)
-        assertEquals(TODAY, s.daily.last().date)
-        assertEquals(listOf(0, 0, 0, 0, 2, 0, 1), s.daily.map { it.mealCount })
-        assertEquals(2, s.loggedDays)
-        assertEquals("(750 + 250) / 2 logged days", 500.0, s.average!!.kcal, 1e-9)
+        assertEquals(TODAY.minusDays(7), s.daily.first().date)
+        assertEquals(TODAY.minusDays(1), s.daily.last().date)
+        assertEquals(listOf(0, 0, 0, 0, 0, 2, 0), s.daily.map { it.mealCount })
+        assertEquals(TODAY, s.today!!.date)
+        assertEquals(250.0, s.today!!.totals.kcal, 1e-9)
+        assertEquals("charts show today after the completed days", 8, s.chartDays.size)
+        assertEquals(TODAY, s.chartDays.last().date)
+        assertEquals("today is not a logged day", 1, s.loggedDays)
+        assertEquals("only the completed day's 750, not today's 250", 750.0, s.average!!.kcal, 1e-9)
         assertEquals(1800.0, s.target!!, 1e-9)
-        assertEquals("weights in range only", listOf(88.0, 87.0), s.weights.map { it.kg })
+        assertEquals("weights in range only, today's included", listOf(88.0, 87.0), s.weights.map { it.kg })
         val split = s.split!!
         assertEquals(100.0, split.proteinPct + split.carbsPct + split.fatPct, 1e-9)
     }
@@ -79,7 +83,7 @@ class StatsViewModelTest {
         vm.setRange(StatsRange.MONTH)
         var s = vm.uiState.value
         assertEquals(30, s.daily.size)
-        assertEquals(3, s.loggedDays)
+        assertEquals(2, s.loggedDays)
         assertEquals(2, s.weights.size)
 
         vm.setRange(StatsRange.QUARTER)
@@ -94,8 +98,25 @@ class StatsViewModelTest {
         vm.setRange(StatsRange.ALL)
         val s = vm.uiState.value
         assertEquals(TODAY.minusDays(40), s.daily.first().date)
-        assertEquals(41, s.daily.size)
+        assertEquals(40, s.daily.size)
         assertEquals(3, s.weights.size)
+    }
+
+    @Test
+    fun `meals only today chart but give no average or split`() = runTest {
+        val onlyToday = TestWorld(
+            main.dispatcher,
+            foods = listOf(food("bread", "Bread", kcal = 250.0, carbs = 50.0)),
+            meals = listOf(meal("m1", "bread", 100.0, TODAY)),
+        )
+        val fresh = StatsViewModel(onlyToday.session, CLOCK)
+        backgroundScope.launch(main.dispatcher) { fresh.uiState.collect() }
+        val s = fresh.uiState.value
+        assertTrue(s.hasChartData)
+        assertEquals(0, s.loggedDays)
+        assertNull(s.average)
+        assertNull(s.split)
+        onlyToday.session.close()
     }
 
     @Test
@@ -110,8 +131,10 @@ class StatsViewModelTest {
         assertNull(s.target)
         assertEquals(0, s.loggedDays)
         assertTrue(s.daily.all { it.mealCount == 0 })
+        assertFalse(s.hasChartData)
         fresh.setRange(StatsRange.ALL)
-        assertEquals("all-time with nothing logged is just today", listOf(TODAY), fresh.uiState.value.daily.map { it.date })
+        assertEquals("all-time with nothing logged has no completed days", emptyList<Any>(), fresh.uiState.value.daily)
+        assertEquals(listOf(TODAY), fresh.uiState.value.chartDays.map { it.date })
         empty.session.close()
     }
 }

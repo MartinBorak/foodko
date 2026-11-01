@@ -157,8 +157,9 @@
 
     <!-- Stats -->
     <string name="daily_kcal">Daily calories</string>
-    <string name="tap_bar_hint">Tap a bar for the exact value.</string>
+    <string name="tap_bar_hint">Tap a bar for the exact value. The faded bar is today so far.</string>
     <string name="average_per_logged_day">Average per logged day</string>
+    <string name="today_not_counted">Today isn\'t counted until it\'s over.</string>
     <string name="vs_target">vs. target</string>
     <string name="macro_split">Energy from macros</string>
     <string name="daily_carbs">Daily carbs</string>

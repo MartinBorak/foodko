@@ -46,7 +46,8 @@ import kotlin.math.max
 /**
  * Daily bars with an optional horizontal target line. [labels] are drawn under a few bars only,
  * so pass one per bar and let the chart thin them out. Bars are blue until they cross the target,
- * then red past a limit or green for a reached goal ([targetKind]).
+ * then red past a limit or green for a reached goal ([targetKind]). [partialLast] fades the last
+ * bar: a day still in progress (today), shown but not final.
  */
 @Composable
 fun BarChart(
@@ -57,6 +58,7 @@ fun BarChart(
     height: Dp = 180.dp,
     formatValue: (Double) -> String = { Numbers.kcal(it) },
     targetKind: TargetKind = TargetKind.Limit,
+    partialLast: Boolean = false,
 ) {
     val barColor = progressColor()
     val crossedBarColor = crossedColor(targetKind)
@@ -102,7 +104,7 @@ fun BarChart(
                 else -> barColor
             }
             drawRoundRect(
-                color = color,
+                color = if (partialLast && i == values.lastIndex && i != selected) color.copy(alpha = 0.35f) else color,
                 topLeft = Offset(x, topPad + plotHeight - h),
                 size = Size(barWidth, h),
                 cornerRadius = CornerRadius(barWidth / 4),
