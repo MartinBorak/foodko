@@ -85,7 +85,9 @@ meals and weigh-ins. Emulator data is in-memory: every start is a clean slate. M
 `FoodkoApp` (`Mock` object), `AuthRepository.signInMock`, `SignInScreen`, `UserSession.init`.
 A plain `installDebug` (no property) talks to production Firebase and needs a real Google account.
 Emulator quirks: `adb shell input text` drops spaces (use `%s`); the Back key is swallowed by
-Gboard in hardware-keyboard mode, use the in-app back arrow.
+Gboard in hardware-keyboard mode, use the in-app back arrow. The AVD has `hw.keyboard=yes`, so the on-screen
+keyboard never appears; to check keyboard overlap, set `hw.keyboard=no` in
+`~/.android/avd/foodko.avd/config.ini` and cold-start the emulator.
 
 ## Toolchain quirks
 

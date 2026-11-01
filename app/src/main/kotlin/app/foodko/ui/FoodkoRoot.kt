@@ -2,6 +2,7 @@ package app.foodko.ui
 
 import android.net.Uri
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
@@ -142,7 +143,9 @@ private fun MainNavigation() {
         NavHost(
             navController = navController,
             startDestination = Routes.TODAY,
-            modifier = Modifier.padding(padding).consumeWindowInsets(padding),
+            // Edge-to-edge means adjustResize no longer shrinks the window for the keyboard; this
+            // does, for every screen, so scrolling containers keep the focused field above it.
+            modifier = Modifier.padding(padding).consumeWindowInsets(padding).imePadding(),
         ) {
             composable(Routes.TODAY) {
                 TodayScreen(
