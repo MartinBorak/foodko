@@ -64,7 +64,7 @@ Any number of allowlisted users (a household). All are equal; there is no admin 
 ### Flow 3: Add a food to the shared database
 
 1. From **Foods** tab (**+ Food**) or from the food picker ("Create new food").
-2. Form: **Label** (required, text), **kcal per 100 g** (required, float), **Fat**, **Carbs**, **Protein**, **Fibre** (optional floats, grams per 100 g), **Note** (optional free text: brand, shop, how it was cooked; shown under the label in the Foods list and the picker).
+2. Form: **Label** (required, text), **kcal per 100 g** (required, float), **Fat**, **Carbs**, **Protein**, **Fibre** (optional floats, grams per 100 g; left empty, a macro is saved as 0, the field itself is not prefilled), **Note** (optional free text: brand, shop, how it was cooked; shown under the label in the Foods list and the picker).
    While the label is typed (from 2 characters), up to 5 existing foods matching it are listed right under the field, with the same search as the picker, exact match first, archived foods left out. Tapping one opens it in the edit form on top of the new one (back returns with the typed label kept); when the form was opened from a food picker, tapping one uses it for the meal or ingredient instead.
 3. Save → food is in the shared database, visible to both users immediately.
 
@@ -89,7 +89,7 @@ A one-shot calculator inside the food form; the result is an ordinary food, noth
 **Edge cases:**
 
 - Any ingredient lacks a macro → that macro of the result is empty ("–"), not a silently low number;
-  it can be typed in by hand.
+  it can be typed in by hand (left empty, it is saved as 0 like any other empty macro).
 - Back (arrow or system) steps picker → ingredients → form; the ingredient list survives until the
   form is left.
 - Creating a new food from the ingredient picker opens a second food form on top; on save the new
@@ -202,7 +202,7 @@ Stored in Firestore. `uid` is the Firebase Auth user id.
 
 **Business rules:**
 
-- Nutrition of a meal = food value per 100 g × grams / 100, computed at display time (not stored). Null macro on the food → that macro is shown as "–" for the meal; in daily totals and averages it counts as 0 and the day/period carries a visible "incomplete" marker.
+- Nutrition of a meal = food value per 100 g × grams / 100, computed at display time (not stored). Null macro on the food (only foods saved before empty meant 0) → that macro is shown as "–" for the meal; in daily totals and averages it counts as 0 and the day/period carries a visible "incomplete" marker.
 - Averages in Stats are per *logged* day (days with at least one meal). Days with nothing logged are far more likely unlogged than fasted.
 - **Today is not a completed day in Stats.** It is rarely final, so the range (7 / 30 / 90 / all) counts completed days ending yesterday, and averages and the macro split use only those. The daily bar charts show today as an extra, faded bar after them. Weight is unaffected: a weigh-in is final when entered, so today's counts.
 - A "day" is local-time midnight to midnight on the phone.

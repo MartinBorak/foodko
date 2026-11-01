@@ -55,7 +55,7 @@ class FoodFormViewModelTest {
         assertEquals("banan", saved.labelLower)
         assertEquals(89.0, saved.kcalPer100g, 1e-9)
         assertEquals(23.0, saved.carbsPer100g!!, 1e-9)
-        assertNull(saved.fatPer100g)
+        assertEquals("fat left empty is saved as 0", 0.0, saved.fatPer100g!!, 0.0)
         assertEquals("ripe", saved.note)
         assertEquals(world.uid, saved.createdBy)
     }
@@ -151,7 +151,7 @@ class FoodFormViewModelTest {
 
         val saved = world.foods.byId("skyr")
         assertEquals(65.0, saved.kcalPer100g, 1e-9)
-        assertNull(saved.fibrePer100g)
+        assertEquals("fibre cleared is saved as 0", 0.0, saved.fibrePer100g!!, 0.0)
         assertEquals("someone-else", saved.createdBy)
         assertEquals(5, world.foods.state.value.size)
     }
@@ -244,7 +244,8 @@ class FoodFormViewModelTest {
         assertEquals("me", applied.createdBy)
         assertEquals("Rice", applied.label)
         assertEquals("rice", applied.labelLower)
-        assertNull(applied.fatPer100g)
+        assertEquals("an empty macro is saved as 0", 0.0, applied.fatPer100g!!, 0.0)
+        assertEquals(78.0, applied.carbsPer100g!!, 0.0)
         assertNull(applied.note)
     }
 }

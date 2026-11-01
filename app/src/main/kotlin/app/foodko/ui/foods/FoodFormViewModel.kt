@@ -53,15 +53,15 @@ class FoodFields {
     val macroSum: Double
         get() = listOf(carbs, fat, protein, fibre).sumOf { optional(it) ?: 0.0 }
 
-    /** Applies the fields onto [base], keeping its id and bookkeeping. */
+    /** Applies the fields onto [base], keeping its id and bookkeeping. A macro left empty is saved as 0. */
     fun applyTo(base: Food): Food = base.copy(
         label = label.trim(),
         labelLower = normalizeForSearch(label),
         kcalPer100g = kcalValue ?: 0.0,
-        carbsPer100g = optional(carbs),
-        fatPer100g = optional(fat),
-        proteinPer100g = optional(protein),
-        fibrePer100g = optional(fibre),
+        carbsPer100g = optional(carbs) ?: 0.0,
+        fatPer100g = optional(fat) ?: 0.0,
+        proteinPer100g = optional(protein) ?: 0.0,
+        fibrePer100g = optional(fibre) ?: 0.0,
         note = note.trim().ifEmpty { null },
     )
 }
