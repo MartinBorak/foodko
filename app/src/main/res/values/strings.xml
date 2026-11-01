@@ -113,8 +113,8 @@
     </plurals>
 
     <!-- Food form: calculate values from ingredients -->
-    <string name="calculate_from_ingredients">Calculate from ingredients…</string>
-    <string name="from_ingredients">From ingredients</string>
+    <string name="add_from_recipe">Add from a recipe…</string>
+    <string name="from_recipe">From a recipe</string>
     <string name="ingredients_hint">Add the ingredients with their raw weights, then weigh the finished dish. The values per 100 g go into the form; the ingredient list itself is not kept.</string>
     <string name="no_ingredients_yet">No ingredients yet.</string>
     <string name="add_ingredient">Add ingredient</string>

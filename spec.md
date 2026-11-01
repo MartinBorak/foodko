@@ -78,7 +78,7 @@ Any number of allowlisted users (a household). All are equal; there is no admin 
 A one-shot calculator inside the food form; the result is an ordinary food, nothing else is stored
 (decision 8).
 
-1. In the **Food form**, tap **Calculate from ingredients…**.
+1. In the **New food** form, tap **Add from a recipe…** (top of the form, above the label). Not offered when editing an existing food: the ingredients were never kept, so there is nothing to recompute from.
 2. **Ingredients** view: tap **Add ingredient** → the same food picker as for meals (recent, search,
    "Create new food"); enter the raw weight in grams of each ingredient; enter the **weight of the
    finished dish** (differs from the sum: water added or evaporated).
@@ -224,7 +224,7 @@ Bottom navigation with four tabs, plus a floating **+** on Today.
 | **Food picker**                  | Search field (auto-focused), "Recent" section, then filtered full list. "Create new food" row.                                                                                                           |
 | **Meal form**                    | Selected food (tap to change), grams field, date/time field, live nutrition preview; Save (top bar, so the keyboard never hides it), Delete (when editing).                                                                                        |
 | **Foods** (tab)                  | Searchable list of all foods with kcal/100g. Tap to edit. Long-press to multi-select → **Merge**. Filter toggle to show archived foods. **+ Food**.                                                         |
-| **Food form**                    | Label, kcal/100g, fat, carbs, protein, fibre, note, "Calculate from ingredients…", Save (top bar), Archive / Un-archive.                                                                                           |
+| **Food form**                    | "Add from a recipe…" at the top (new food only), label, kcal/100g, fat, carbs, protein, fibre, note, Save (top bar), Archive / Un-archive.                                                                                           |
 | **Ingredients** (in Food form)   | Ingredient rows (food, grams, remove), Add ingredient (→ Food picker), weight of the finished dish, live per-100 g result, Use these values.                                                             |
 | **Merge screen**                 | Selected foods side by side with a survivor radio button; Food form prefilled from the survivor; Save.                                                                                                   |
 | **Weight** (tab)                 | Latest weight and change since first entry. Line chart (range selector). Inline "add weight" row. History list, tap to edit.                                                                             |

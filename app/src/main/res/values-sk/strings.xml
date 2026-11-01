@@ -111,8 +111,8 @@
     </plurals>
 
     <!-- Formulár potraviny: výpočet hodnôt zo surovín -->
-    <string name="calculate_from_ingredients">Vypočítať zo surovín…</string>
-    <string name="from_ingredients">Zo surovín</string>
+    <string name="add_from_recipe">Pridať podľa receptu…</string>
+    <string name="from_recipe">Podľa receptu</string>
     <string name="ingredients_hint">Pridaj suroviny s ich surovou hmotnosťou a potom odváž hotové jedlo. Hodnoty na 100 g sa doplnia do formulára; samotný zoznam surovín sa neukladá.</string>
     <string name="no_ingredients_yet">Zatiaľ žiadne suroviny.</string>
     <string name="add_ingredient">Pridať surovinu</string>

@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
@@ -92,7 +93,7 @@ fun FoodFormScreen(
 
     val title = when (vm.mode) {
         FormMode.FORM -> stringResource(if (vm.isEditing) R.string.edit_food else R.string.new_food)
-        FormMode.INGREDIENTS -> stringResource(R.string.from_ingredients)
+        FormMode.INGREDIENTS -> stringResource(R.string.from_recipe)
         FormMode.PICKING_INGREDIENT -> stringResource(R.string.pick_food)
     }
 
@@ -137,11 +138,18 @@ fun FoodFormScreen(
         if (vm.mode != FormMode.FORM) return@Scaffold
 
         Column(modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp)) {
+            // New foods only: the ingredients aren't kept, so there is nothing to recompute an existing food from.
+            if (!vm.isEditing) {
+                OutlinedButton(onClick = vm::startIngredients, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.add_from_recipe))
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             FoodFieldsEditor(vm.fields, duplicate = vm.duplicateOf(currentIndex), autoFocusLabel = !vm.isEditing) {
                 ExistingFoods(vm.suggestions(currentIndex), pickExisting, onOpenExisting)
             }
-            Spacer(Modifier.height(8.dp))
-            TextButton(onClick = vm::startIngredients) { Text(stringResource(R.string.calculate_from_ingredients)) }
             val existing = vm.existing
             if (existing != null) {
                 Spacer(Modifier.height(12.dp))
